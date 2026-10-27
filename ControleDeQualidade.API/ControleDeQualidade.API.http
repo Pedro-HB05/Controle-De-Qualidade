@@ -1,0 +1,111 @@
+@ControleDeQualidade.API_HostAddress = http://localhost:5170
+
+### 1. Listar Produtos
+GET {{ControleDeQualidade.API_HostAddress}}/api/produtos
+Accept: application/json
+
+### 2. Cadastrar Novo Produto
+POST {{ControleDeQualidade.API_HostAddress}}/api/produtos
+Content-Type: application/json
+
+{
+  "codigo": "PRD-VALV-01",
+  "nome": "Válvula de Pressão VP-20",
+  "descricao": "Válvula usinada para sistemas hidráulicos",
+  "categoria": "Usinagem",
+  "unidadeMedida": "UN"
+}
+
+### 3. Listar Lotes de Fabricação
+GET {{ControleDeQualidade.API_HostAddress}}/api/lotes
+Accept: application/json
+
+### 4. Cadastrar Novo Lote
+POST {{ControleDeQualidade.API_HostAddress}}/api/lotes
+Content-Type: application/json
+
+{
+  "numeroLote": "LOTE-2026-001",
+  "produtoId": 1,
+  "quantidadeTotal": 500,
+  "linhaProducao": "Linha 01",
+  "status": "AguardandoInspecao",
+  "observacoes": "Lote produzido no turno 1"
+}
+
+### 5. Cadastrar Tipo de Defeito
+POST {{ControleDeQualidade.API_HostAddress}}/api/tipos-defeitos
+Content-Type: application/json
+
+{
+  "codigo": "DEF-DIM-01",
+  "nome": "Dimensional fora de tolerância",
+  "descricao": "Medida fora da cota do desenho",
+  "categoria": "Dimensional",
+  "gravidade": "Grave"
+}
+
+### 6. Listar Tipos de Defeito
+GET {{ControleDeQualidade.API_HostAddress}}/api/tipos-defeitos
+Accept: application/json
+
+### 7. Registrar Inspeção de Qualidade
+POST {{ControleDeQualidade.API_HostAddress}}/api/inspecoes
+Content-Type: application/json
+
+{
+  "loteId": 1,
+  "inspetor": "Inspetor de Qualidade",
+  "quantidadeInspecionada": 50,
+  "quantidadeAprovada": 45,
+  "quantidadeRejeitada": 5,
+  "status": "Reprovado",
+  "observacoes": "Peças rejeitadas por variação dimensional",
+  "gerarRncSeReprovado": true,
+  "defeitosIdentificados": [
+    {
+      "tipoDefeitoId": 1,
+      "quantidade": 5,
+      "gravidade": "Grave",
+      "observacao": "Diâmetro externo com desvio"
+    }
+  ]
+}
+
+### 8. Listar Inspeções Realizadas
+GET {{ControleDeQualidade.API_HostAddress}}/api/inspecoes
+Accept: application/json
+
+### 9. Listar Não Conformidades (RNCs)
+GET {{ControleDeQualidade.API_HostAddress}}/api/nao-conformidades
+Accept: application/json
+
+### 10. Registrar Tratativa de RNC
+PATCH {{ControleDeQualidade.API_HostAddress}}/api/nao-conformidades/1/tratativa
+Content-Type: application/json
+
+{
+  "causaRaiz": "Desgaste da ferramenta de corte CNC.",
+  "acaoImediata": "Bloqueio do lote de peças rejeitadas.",
+  "acaoCorretiva": "Troca de pastilha e calibração do equipamento.",
+  "responsavelTratativa": "Engenharia de Qualidade",
+  "status": "Resolvida",
+  "concluirTratativa": true,
+  "observacoes": "Ação concluída e validada."
+}
+
+### 11. Dashboard - KPIs de Qualidade
+GET {{ControleDeQualidade.API_HostAddress}}/api/indicadores/kpis
+Accept: application/json
+
+### 12. Dashboard - Gráfico de Pareto de Defeitos (80/20)
+GET {{ControleDeQualidade.API_HostAddress}}/api/indicadores/pareto-defeitos
+Accept: application/json
+
+### 13. Dashboard - Defeitos por Categoria
+GET {{ControleDeQualidade.API_HostAddress}}/api/indicadores/defeitos-por-categoria
+Accept: application/json
+
+### 14. Relatório Gerencial Consolidado
+GET {{ControleDeQualidade.API_HostAddress}}/api/relatorios/gerencial
+Accept: application/json
