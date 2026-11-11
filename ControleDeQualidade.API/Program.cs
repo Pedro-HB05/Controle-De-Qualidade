@@ -5,9 +5,21 @@ using ControleDeQualidade.API.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuração do contexto em memória
+// Configuração do Banco de Dados (PostgreSQL no Neon com suporte a Snake Case)
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseInMemoryDatabase("ControleQualidadeDb"));
+{
+    if (!string.IsNullOrWhiteSpace(connectionString))
+    {
+        options.UseNpgsql(connectionString)
+               .UseSnakeCaseNamingConvention();
+    }
+    else
+    {
+        options.UseInMemoryDatabase("ControleQualidadeDb");
+    }
+});
 
 // Serialização de Enums como texto e controle de ciclos de referência
 builder.Services.AddControllers()
@@ -33,16 +45,15 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "API - Sistema de Controle de Qualidade",
+        Title = "ControlDesk API",
         Version = "v1",
-        Description = "API REST para gerenciamento de processos de qualidade produtivos.\n\n" +
+        Description = "API REST do ControlDesk para gerenciamento de patrimônio, vistorias e controle de prazos.\n\n" +
                       "Módulos:\n" +
-                      "- Produtos e Lotes de Fabricação\n" +
-                      "- Inspeções de Qualidade Estruturadas\n" +
-                      "- Identificação e Catálogo de Defeitos\n" +
-                      "- Gerenciamento de Não Conformidades (RNC)\n" +
-                      "- Indicadores de Desempenho (KPIs, Pareto 80/20, Defeitos por Categoria)\n" +
-                      "- Relatórios Gerenciais"
+                      "- Autenticação e Usuários\n" +
+                      "- Controle de Máquinas e Patrimônio\n" +
+                      "- Controle de Checagens e Vistorias\n" +
+                      "- Controle de Prazos e Pendências\n" +
+                      "- Painel de Indicadores e KPIs"
     });
 
     var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -59,7 +70,7 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Controle de Qualidade API v1");
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "ControlDesk API v1");
     c.RoutePrefix = "swagger"; // Disponibiliza no padrão /swagger
 });
 
@@ -71,5 +82,88 @@ app.UseCors("AllowAll");
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Garante criação das tabelas e dados iniciais
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    try
+    {
+        if (db.Database.IsRelational())
+        {
+            if (File.Exists("../reset_database.sql"))
+            {
+                var sql = File.ReadAllText("../reset_database.sql");
+                db.Database.ExecuteSqlRaw(sql);
+                File.Delete("../reset_database.sql");
+                Console.WriteLine("BANCO RESETADO COM SUCESSO!");
+            }
+            else
+            {
+                const string createTablesSql = @"
+                CREATE TABLE IF NOT EXISTS usuarios (
+                    id SERIAL PRIMARY KEY,
+                    nome VARCHAR(100) NOT NULL,
+                    email VARCHAR(150) NOT NULL UNIQUE,
+                    senha VARCHAR(100) NOT NULL,
+                    cargo VARCHAR(100) DEFAULT 'Colaborador',
+                    data_cadastro TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+
+                CREATE TABLE IF NOT EXISTS maquinas (
+                    id SERIAL PRIMARY KEY,
+                    numero_patrimonio VARCHAR(50) NOT NULL UNIQUE,
+                    nome_modelo VARCHAR(150) NOT NULL,
+                    categoria VARCHAR(100) DEFAULT 'Equipamento',
+                    responsavel VARCHAR(100) NOT NULL,
+                    setor VARCHAR(100) DEFAULT 'Geral',
+                    status VARCHAR(50) NOT NULL DEFAULT 'Ativo',
+                    data_aquisicao TIMESTAMP WITH TIME ZONE,
+                    data_ultima_revisao TIMESTAMP WITH TIME ZONE,
+                    proxima_revisao TIMESTAMP WITH TIME ZONE,
+                    observacoes TEXT,
+                    data_cadastro TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+
+                CREATE TABLE IF NOT EXISTS vistorias (
+                    id SERIAL PRIMARY KEY,
+                    codigo_vistoria VARCHAR(50) NOT NULL,
+                    maquina_id INTEGER NOT NULL REFERENCES maquinas(id) ON DELETE CASCADE,
+                    responsavel_vistoria VARCHAR(100) NOT NULL,
+                    data_vistoria TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+                    status VARCHAR(50) NOT NULL DEFAULT 'Aprovado',
+                    observacoes TEXT,
+                    pendencia_gerada_id INTEGER,
+                    data_cadastro TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+
+                CREATE TABLE IF NOT EXISTS pendencias (
+                    id SERIAL PRIMARY KEY,
+                    codigo_pendencia VARCHAR(50) NOT NULL,
+                    titulo VARCHAR(200) NOT NULL,
+                    descricao TEXT,
+                    maquina_id INTEGER REFERENCES maquinas(id) ON DELETE SET NULL,
+                    setor VARCHAR(100) DEFAULT 'Geral',
+                    responsavel VARCHAR(100) NOT NULL,
+                    prazo_limite TIMESTAMP WITH TIME ZONE NOT NULL,
+                    status VARCHAR(50) NOT NULL DEFAULT 'Aberta',
+                    data_resolucao TIMESTAMP WITH TIME ZONE,
+                    solucao_aplicada TEXT,
+                    data_criacao TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );";
+
+                db.Database.ExecuteSqlRaw(createTablesSql);
+            }
+        }
+        else
+        {
+            db.Database.EnsureCreated();
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Aviso inicialização do banco: {ex.Message}");
+    }
+}
 
 app.Run();

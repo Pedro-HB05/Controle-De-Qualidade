@@ -9,99 +9,66 @@ public class AppDbContext : DbContext
     {
     }
 
-    public DbSet<Produto> Produtos => Set<Produto>();
-    public DbSet<Lote> Lotes => Set<Lote>();
-    public DbSet<TipoDefeito> TiposDefeitos => Set<TipoDefeito>();
-    public DbSet<Inspecao> Inspecoes => Set<Inspecao>();
-    public DbSet<DefeitoIdentificado> DefeitosIdentificados => Set<DefeitoIdentificado>();
-    public DbSet<NaoConformidade> NaoConformidades => Set<NaoConformidade>();
+    public DbSet<Usuario> Usuarios => Set<Usuario>();
+    public DbSet<Maquina> Maquinas => Set<Maquina>();
+    public DbSet<Vistoria> Vistorias => Set<Vistoria>();
+    public DbSet<Pendencia> Pendencias => Set<Pendencia>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // Produto configuration
-        modelBuilder.Entity<Produto>(entity =>
+        // Usuario configuration
+        modelBuilder.Entity<Usuario>(entity =>
         {
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Codigo).IsRequired().HasMaxLength(50);
-            entity.HasIndex(e => e.Codigo).IsUnique();
-            entity.Property(e => e.Nome).IsRequired().HasMaxLength(150);
+            entity.Property(e => e.Email).IsRequired().HasMaxLength(150);
+            entity.HasIndex(e => e.Email).IsUnique();
+            entity.Property(e => e.Nome).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Senha).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Cargo).HasMaxLength(100);
+        });
+
+        // Maquina configuration
+        modelBuilder.Entity<Maquina>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.NumeroPatrimonio).IsRequired().HasMaxLength(50);
+            entity.HasIndex(e => e.NumeroPatrimonio).IsUnique();
+            entity.Property(e => e.NomeModelo).IsRequired().HasMaxLength(150);
+            entity.Property(e => e.Responsavel).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Setor).HasMaxLength(100);
             entity.Property(e => e.Categoria).HasMaxLength(100);
-            entity.Property(e => e.UnidadeMedida).HasMaxLength(20);
+            entity.Property(e => e.Status).HasMaxLength(50);
         });
 
-        // Lote configuration
-        modelBuilder.Entity<Lote>(entity =>
+        // Vistoria configuration
+        modelBuilder.Entity<Vistoria>(entity =>
         {
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.NumeroLote).IsRequired().HasMaxLength(50);
-            entity.HasIndex(e => e.NumeroLote).IsUnique();
-            entity.Property(e => e.LinhaProducao).HasMaxLength(100);
+            entity.Property(e => e.CodigoVistoria).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.ResponsavelVistoria).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Status).HasMaxLength(50);
 
-            entity.HasOne(e => e.Produto)
-                .WithMany(p => p.Lotes)
-                .HasForeignKey(e => e.ProdutoId)
-                .OnDelete(DeleteBehavior.Restrict);
-        });
-
-        // TipoDefeito configuration
-        modelBuilder.Entity<TipoDefeito>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Codigo).IsRequired().HasMaxLength(50);
-            entity.HasIndex(e => e.Codigo).IsUnique();
-            entity.Property(e => e.Nome).IsRequired().HasMaxLength(150);
-        });
-
-        // Inspecao configuration
-        modelBuilder.Entity<Inspecao>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.CodigoInspecao).IsRequired().HasMaxLength(50);
-            entity.HasIndex(e => e.CodigoInspecao).IsUnique();
-            entity.Property(e => e.Inspetor).IsRequired().HasMaxLength(100);
-
-            entity.HasOne(e => e.Lote)
-                .WithMany(l => l.Inspecoes)
-                .HasForeignKey(e => e.LoteId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            entity.HasMany(e => e.DefeitosIdentificados)
-                .WithOne(d => d.Inspecao)
-                .HasForeignKey(d => d.InspecaoId)
+            entity.HasOne(e => e.Maquina)
+                .WithMany(m => m.Vistorias)
+                .HasForeignKey(e => e.MaquinaId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
-        // DefeitoIdentificado configuration
-        modelBuilder.Entity<DefeitoIdentificado>(entity =>
+        // Pendencia configuration
+        modelBuilder.Entity<Pendencia>(entity =>
         {
             entity.HasKey(e => e.Id);
-
-            entity.HasOne(e => e.TipoDefeito)
-                .WithMany(t => t.DefeitosIdentificados)
-                .HasForeignKey(e => e.TipoDefeitoId)
-                .OnDelete(DeleteBehavior.Restrict);
-        });
-
-        // NaoConformidade configuration
-        modelBuilder.Entity<NaoConformidade>(entity =>
-        {
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.NumeroRnc).IsRequired().HasMaxLength(50);
-            entity.HasIndex(e => e.NumeroRnc).IsUnique();
+            entity.Property(e => e.CodigoPendencia).IsRequired().HasMaxLength(50);
             entity.Property(e => e.Titulo).IsRequired().HasMaxLength(200);
-            entity.Property(e => e.Origem).HasMaxLength(100);
-            entity.Property(e => e.ResponsavelTratativa).HasMaxLength(100);
+            entity.Property(e => e.Responsavel).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Setor).HasMaxLength(100);
+            entity.Property(e => e.Status).HasMaxLength(50);
 
-            entity.HasOne(e => e.Inspecao)
-                .WithMany(i => i.NaoConformidades)
-                .HasForeignKey(e => e.InspecaoId)
-                .OnDelete(DeleteBehavior.SetNull);
-
-            entity.HasOne(e => e.Lote)
-                .WithMany(l => l.NaoConformidades)
-                .HasForeignKey(e => e.LoteId)
+            entity.HasOne(e => e.Maquina)
+                .WithMany(m => m.Pendencias)
+                .HasForeignKey(e => e.MaquinaId)
                 .OnDelete(DeleteBehavior.SetNull);
         });
     }
