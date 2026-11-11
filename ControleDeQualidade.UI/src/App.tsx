@@ -1,54 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar, NavItem } from './components/Sidebar';
 import { Header } from './components/Header';
+import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
-import { Inspecoes } from './pages/Inspecoes';
-import { NaoConformidades } from './pages/NaoConformidades';
-import { Lotes } from './pages/Lotes';
-import { Produtos } from './pages/Produtos';
-import { TiposDefeitos } from './pages/TiposDefeitos';
+import { Maquinas } from './pages/Maquinas';
+import { Vistorias } from './pages/Vistorias';
+import { Pendencias } from './pages/Pendencias';
 import { Relatorios } from './pages/Relatorios';
+import { Usuario } from './types';
 
 export const App: React.FC = () => {
+  const [usuario, setUsuario] = useState<Usuario | null>(() => {
+    const salvo = localStorage.getItem('usuario_logado');
+    if (salvo) {
+      try {
+        return JSON.parse(salvo);
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  });
+
   const [currentTab, setCurrentTab] = useState<NavItem>('dashboard');
   const [refreshKey, setRefreshKey] = useState<number>(0);
+
+  const handleLogout = () => {
+    localStorage.removeItem('usuario_logado');
+    setUsuario(null);
+  };
+
+  if (!usuario) {
+    return <Login onLoginSuccess={(u) => setUsuario(u)} />;
+  }
 
   const getPageInfo = () => {
     switch (currentTab) {
       case 'dashboard':
         return {
-          title: 'Indicadores & KPIs de Qualidade',
-          subtitle: 'Visão consolidada de desempenho produtivo, Pareto de defeitos e tendências.',
+          title: 'Indicadores & KPIs de Gestão',
+          subtitle: 'Visão consolidada de máquinas, vistorias e controle de prazos em tempo real.',
         };
-      case 'inspecoes':
+      case 'maquinas':
         return {
-          title: 'Módulo de Inspeções Estruturadas',
-          subtitle: 'Registro sistemático de verificações de lote e apontamento detalhado de defeitos.',
+          title: 'Controle de Máquinas & Patrimônio',
+          subtitle: 'Cadastre o ID/patrimônio, quem está com a máquina, setor e status operacional.',
         };
-      case 'nao-conformidades':
+      case 'vistorias':
         return {
-          title: 'Gestão de Não Conformidades (RNC)',
-          subtitle: 'Rastreamento de desvios, análise de causa raiz e planos de ação corretiva.',
+          title: 'Controle de Checagens & Vistorias',
+          subtitle: 'Registro das revisões feitas, quem conferiu e aprovação/reprovação.',
         };
-      case 'lotes':
+      case 'pendencias':
         return {
-          title: 'Lotes de Fabricação',
-          subtitle: 'Controle de lotes, linhas produtivas e status operacional de liberação.',
-        };
-      case 'produtos':
-        return {
-          title: 'Produtos & Peças Fabricadas',
-          subtitle: 'Catálogo de itens monitorados pelo controle de qualidade.',
-        };
-      case 'defeitos':
-        return {
-          title: 'Catálogo de Tipos de Defeito',
-          subtitle: 'Classificação por categorias, severidade e critérios de aceitação técnica.',
+          title: 'Controle de Prazos & Pendências',
+          subtitle: 'Registro de falhas, quem tem que resolver e data limite para consertar.',
         };
       case 'relatorios':
         return {
-          title: 'Relatórios Gerenciais',
-          subtitle: 'Consolidação de dados para auditoria, histórico e apoio à tomada de decisão.',
+          title: 'Relatórios & Histórico Consolidado',
+          subtitle: 'Geração de relatórios com datas de checagem, falhas e histórico de resoluções.',
         };
     }
   };
@@ -56,9 +67,14 @@ export const App: React.FC = () => {
   const { title, subtitle } = getPageInfo();
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-50">
+    <div className="flex h-screen w-screen overflow-hidden bg-slate-50 font-sans">
       {/* Sidebar */}
-      <Sidebar currentTab={currentTab} onSelectTab={setCurrentTab} />
+      <Sidebar
+        currentTab={currentTab}
+        onSelectTab={setCurrentTab}
+        usuario={usuario}
+        onLogout={handleLogout}
+      />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -70,16 +86,11 @@ export const App: React.FC = () => {
 
         <main className="flex-1 overflow-y-auto" key={refreshKey}>
           {currentTab === 'dashboard' && (
-            <Dashboard
-              onNavigateToInspecoes={() => setCurrentTab('inspecoes')}
-              onNavigateToRncs={() => setCurrentTab('nao-conformidades')}
-            />
+            <Dashboard usuario={usuario} onNavigate={(tab) => setCurrentTab(tab)} />
           )}
-          {currentTab === 'inspecoes' && <Inspecoes />}
-          {currentTab === 'nao-conformidades' && <NaoConformidades />}
-          {currentTab === 'lotes' && <Lotes />}
-          {currentTab === 'produtos' && <Produtos />}
-          {currentTab === 'defeitos' && <TiposDefeitos />}
+          {currentTab === 'maquinas' && <Maquinas />}
+          {currentTab === 'vistorias' && <Vistorias />}
+          {currentTab === 'pendencias' && <Pendencias />}
           {currentTab === 'relatorios' && <Relatorios />}
         </main>
       </div>

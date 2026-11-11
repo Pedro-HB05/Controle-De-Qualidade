@@ -1,18 +1,13 @@
 import {
-  Produto,
-  Lote,
-  TipoDefeito,
-  Inspecao,
-  InspecaoCriacaoInput,
-  NaoConformidade,
-  NaoConformidadeCriacaoInput,
-  TratativaInput,
-  DashboardKpis,
-  ParetoItem,
-  CategoriaDefeitoResumo,
-  EvolucaoMensal,
-  RelatorioGerencial,
-  StatusLote,
+  Usuario,
+  AuthResponse,
+  Maquina,
+  MaquinaInput,
+  Vistoria,
+  VistoriaInput,
+  Pendencia,
+  PendenciaInput,
+  DashboardResumo,
 } from '../types';
 
 const API_BASE = '/api';
@@ -35,7 +30,7 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
       if (errorData?.mensagem) errorMsg = errorData.mensagem;
       else if (errorData?.title) errorMsg = errorData.title;
     } catch {
-      // Ignora erro no parse de json
+      // Ignora erro de parse
     }
     throw new Error(errorMsg);
   }
@@ -48,68 +43,69 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  // Indicadores / Dashboard
-  getKpis: () => request<DashboardKpis>('/indicadores/kpis'),
-  getParetoDefeitos: () => request<ParetoItem[]>('/indicadores/pareto-defeitos'),
-  getDefeitosPorCategoria: () => request<CategoriaDefeitoResumo[]>('/indicadores/defeitos-por-categoria'),
-  getEvolucaoMensal: () => request<EvolucaoMensal[]>('/indicadores/evolucao-mensal'),
+  // Autenticação
+  login: (data: { email: string; senha: string }) =>
+    request<AuthResponse>('/auth/login', { method: 'POST', body: JSON.stringify(data) }),
 
-  // Produtos
-  getProdutos: (busca?: string) =>
-    request<Produto[]>(busca ? `/produtos?termoBusca=${encodeURIComponent(busca)}` : '/produtos'),
-  criarProduto: (data: Partial<Produto>) =>
-    request<Produto>('/produtos', { method: 'POST', body: JSON.stringify(data) }),
-  excluirProduto: (id: number) =>
-    request<void>(`/produtos/${id}`, { method: 'DELETE' }),
+  register: (data: { nome: string; email: string; senha: string; cargo?: string }) =>
+    request<AuthResponse>('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
 
-  // Lotes
-  getLotes: (produtoId?: number, status?: StatusLote) => {
-    const params = new URLSearchParams();
-    if (produtoId) params.append('produtoId', produtoId.toString());
-    if (status) params.append('status', status);
-    const qs = params.toString();
-    return request<Lote[]>(qs ? `/lotes?${qs}` : '/lotes');
+  getUsuarios: () => request<Usuario[]>('/auth/usuarios'),
+
+  // Dashboard
+  getDashboardResumo: () => request<DashboardResumo>('/dashboard/resumo'),
+
+  // Máquinas & Patrimônio
+  getMaquinas: (params?: { busca?: string; setor?: string; status?: string }) => {
+    const query = new URLSearchParams();
+    if (params?.busca) query.append('busca', params.busca);
+    if (params?.setor) query.append('setor', params.setor);
+    if (params?.status) query.append('status', params.status);
+    const qs = query.toString();
+    return request<Maquina[]>(`/maquinas${qs ? `?${qs}` : ''}`);
   },
-  criarLote: (data: Partial<Lote>) =>
-    request<Lote>('/lotes', { method: 'POST', body: JSON.stringify(data) }),
-  atualizarStatusLote: (id: number, novoStatus: StatusLote) =>
-    request<void>(`/lotes/${id}/status`, {
-      method: 'PATCH',
-      body: JSON.stringify(novoStatus),
-    }),
 
-  // Tipos de Defeito
-  getTiposDefeitos: () => request<TipoDefeito[]>('/tipos-defeitos'),
-  criarTipoDefeito: (data: Partial<TipoDefeito>) =>
-    request<TipoDefeito>('/tipos-defeitos', { method: 'POST', body: JSON.stringify(data) }),
+  getMaquinaPorId: (id: number) => request<Maquina>(`/maquinas/${id}`),
 
-  // Inspeções
-  getInspecoes: (loteId?: number) =>
-    request<Inspecao[]>(loteId ? `/inspecoes?loteId=${loteId}` : '/inspecoes'),
-  criarInspecao: (data: InspecaoCriacaoInput) =>
-    request<Inspecao>('/inspecoes', { method: 'POST', body: JSON.stringify(data) }),
+  criarMaquina: (data: MaquinaInput) =>
+    request<Maquina>('/maquinas', { method: 'POST', body: JSON.stringify(data) }),
 
-  // Não Conformidades (RNC)
-  getNaoConformidades: (apenasAtrasadas?: boolean) => {
-    const qs = apenasAtrasadas ? '?apenasAtrasadas=true' : '';
-    return request<NaoConformidade[]>(`/nao-conformidades${qs}`);
+  atualizarMaquina: (id: number, data: MaquinaInput) =>
+    request<Maquina>(`/maquinas/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  excluirMaquina: (id: number) =>
+    request<void>(`/maquinas/${id}`, { method: 'DELETE' }),
+
+  // Checagens & Vistorias
+  getVistorias: (params?: { maquinaId?: number; status?: string }) => {
+    const query = new URLSearchParams();
+    if (params?.maquinaId) query.append('maquinaId', params.maquinaId.toString());
+    if (params?.status) query.append('status', params.status);
+    const qs = query.toString();
+    return request<Vistoria[]>(`/vistorias${qs ? `?${qs}` : ''}`);
   },
-  criarNaoConformidade: (data: NaoConformidadeCriacaoInput) =>
-    request<NaoConformidade>('/nao-conformidades', { method: 'POST', body: JSON.stringify(data) }),
-  registrarTratativa: (id: number, data: TratativaInput) =>
-    request<{ mensagem: string }>(`/nao-conformidades/${id}/tratativa`, {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    }),
 
-  // Relatórios
-  getRelatorioGerencial: (filtro?: { dataInicio?: string; dataFim?: string; loteId?: number; produtoId?: number }) => {
-    const params = new URLSearchParams();
-    if (filtro?.dataInicio) params.append('dataInicio', filtro.dataInicio);
-    if (filtro?.dataFim) params.append('dataFim', filtro.dataFim);
-    if (filtro?.loteId) params.append('loteId', filtro.loteId.toString());
-    if (filtro?.produtoId) params.append('produtoId', filtro.produtoId.toString());
-    const qs = params.toString();
-    return request<RelatorioGerencial>(qs ? `/relatorios/gerencial?${qs}` : '/relatorios/gerencial');
+  criarVistoria: (data: VistoriaInput) =>
+    request<Vistoria>('/vistorias', { method: 'POST', body: JSON.stringify(data) }),
+
+  excluirVistoria: (id: number) =>
+    request<void>(`/vistorias/${id}`, { method: 'DELETE' }),
+
+  // Prazos & Pendências
+  getPendencias: (params?: { status?: string; busca?: string }) => {
+    const query = new URLSearchParams();
+    if (params?.status) query.append('status', params.status);
+    if (params?.busca) query.append('busca', params.busca);
+    const qs = query.toString();
+    return request<Pendencia[]>(`/pendencias${qs ? `?${qs}` : ''}`);
   },
+
+  criarPendencia: (data: PendenciaInput) =>
+    request<Pendencia>('/pendencias', { method: 'POST', body: JSON.stringify(data) }),
+
+  resolverPendencia: (id: number, data: { solucaoAplicada: string; status?: string }) =>
+    request<Pendencia>(`/pendencias/${id}/resolver`, { method: 'PUT', body: JSON.stringify(data) }),
+
+  excluirPendencia: (id: number) =>
+    request<void>(`/pendencias/${id}`, { method: 'DELETE' }),
 };
