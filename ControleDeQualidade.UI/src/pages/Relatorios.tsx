@@ -2,14 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import { Maquina, Vistoria, Pendencia } from '../types';
 import {
-  FileSpreadsheet,
   Printer,
   Calendar,
   Building2,
   CheckCircle2,
-  XCircle,
   ClockAlert,
-  Laptop,
   ClipboardCheck,
 } from 'lucide-react';
 
@@ -75,19 +72,21 @@ export const Relatorios: React.FC = () => {
   const setoresUnicos = Array.from(new Set(maquinas.map((m) => m.setor).filter(Boolean)));
 
   return (
-    <div className="p-8 space-y-6 max-w-7xl mx-auto print:p-0 print:max-w-none">
+    <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl mx-auto print:p-0 print:max-w-none">
       {/* Header (Oculto na impressão) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 print:hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 print:hidden">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">Relatórios & Histórico Consolidado</h2>
-          <p className="text-xs text-slate-500 mt-1">
-            Geração de relatórios executivos para prestação de contas, auditoria e controle de patrimônio.
+          <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+            Relatórios & Histórico
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 sm:mt-1">
+            Puxe e imprima em folha A4 ou PDF um resumo simples de todas as checagens e consertos realizados.
           </p>
         </div>
 
         <button
           onClick={handleImprimir}
-          className="flex items-center gap-2 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold transition-colors shadow-sm shrink-0"
+          className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2.5 bg-slate-900 dark:bg-sky-600 hover:bg-slate-800 dark:hover:bg-sky-500 active:scale-95 text-white rounded-xl text-xs font-semibold transition-all shadow-sm shrink-0"
         >
           <Printer className="w-4 h-4" />
           Imprimir / Salvar em PDF
@@ -95,33 +94,39 @@ export const Relatorios: React.FC = () => {
       </div>
 
       {/* Painel de Filtros (Oculto na impressão) */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-wrap items-center gap-4 print:hidden">
-        <div>
-          <label className="block text-[11px] font-semibold text-slate-600 mb-1">Data Inicial</label>
+      <div className="bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row flex-wrap items-stretch sm:items-end gap-3 sm:gap-4 print:hidden">
+        <div className="flex-1 min-w-[130px]">
+          <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+            Data Inicial
+          </label>
           <input
             type="date"
             value={dataInicio}
             onChange={(e) => setDataInicio(e.target.value)}
-            className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-slate-700"
+            className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-1.5 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500"
           />
         </div>
 
-        <div>
-          <label className="block text-[11px] font-semibold text-slate-600 mb-1">Data Final</label>
+        <div className="flex-1 min-w-[130px]">
+          <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+            Data Final
+          </label>
           <input
             type="date"
             value={dataFim}
             onChange={(e) => setDataFim(e.target.value)}
-            className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-slate-700"
+            className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-1.5 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500"
           />
         </div>
 
-        <div>
-          <label className="block text-[11px] font-semibold text-slate-600 mb-1">Setor</label>
+        <div className="flex-1 min-w-[130px]">
+          <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
+            Setor
+          </label>
           <select
             value={filtroSetor}
             onChange={(e) => setFiltroSetor(e.target.value)}
-            className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-slate-700"
+            className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-1.5 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500"
           >
             <option value="todos">Todos os Setores</option>
             {setoresUnicos.map((s) => (
@@ -139,7 +144,7 @@ export const Relatorios: React.FC = () => {
               setDataFim('');
               setFiltroSetor('todos');
             }}
-            className="text-xs text-rose-600 underline font-semibold mt-4"
+            className="text-xs text-rose-600 dark:text-rose-400 underline font-semibold sm:mb-2 text-left"
           >
             Limpar Filtros
           </button>
@@ -147,20 +152,20 @@ export const Relatorios: React.FC = () => {
       </div>
 
       {/* RELATÓRIO FORMATADO (Visível na tela e na impressão A4) */}
-      <div className="bg-white p-8 rounded-2xl border border-slate-200/80 shadow-sm print:border-none print:shadow-none print:p-0 space-y-6">
+      <div className="bg-white dark:bg-slate-900 p-4 sm:p-6 md:p-8 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm print:bg-white print:text-black print:border-none print:shadow-none print:p-0 space-y-6 transition-colors">
         {/* Cabeçalho do Documento para Impressão */}
-        <div className="border-b border-slate-200 pb-4">
-          <div className="flex justify-between items-start">
+        <div className="border-b border-slate-200 dark:border-slate-800 print:border-slate-300 pb-4">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-2">
             <div>
-              <h1 className="text-xl font-bold text-slate-900 uppercase tracking-tight">
-                ControlDesk — Relatório de Gestão & Patrimônio
+              <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white print:text-black uppercase tracking-tight">
+                ControlDesk — Relatório de Equipamentos e Revisões
               </h1>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 print:text-slate-600 mt-0.5">
                 Emissão em: {new Date().toLocaleDateString('pt-BR')} às{' '}
                 {new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
               </p>
             </div>
-            <div className="text-right text-xs text-slate-600">
+            <div className="sm:text-right text-xs text-slate-600 dark:text-slate-400 print:text-slate-700">
               <span className="font-bold">Setor: </span>
               {filtroSetor === 'todos' ? 'Geral (Todos)' : filtroSetor}
             </div>
@@ -168,22 +173,28 @@ export const Relatorios: React.FC = () => {
         </div>
 
         {/* Resumo Executivo */}
-        <div className="grid grid-cols-4 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200/60 text-center">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 bg-slate-50 dark:bg-slate-950/60 print:bg-slate-50 p-4 rounded-xl border border-slate-200/60 dark:border-slate-800 print:border-slate-300 text-center">
           <div>
-            <span className="text-[11px] text-slate-500 uppercase font-semibold">Equipamentos</span>
-            <div className="text-xl font-bold text-slate-900 mt-1">{maquinasFiltradas.length}</div>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 print:text-slate-600 uppercase font-semibold">
+              Total de Itens
+            </span>
+            <div className="text-xl font-bold text-slate-900 dark:text-white print:text-black mt-1">
+              {maquinasFiltradas.length}
+            </div>
           </div>
           <div>
-            <span className="text-[11px] text-slate-500 uppercase font-semibold">Vistorias Feitas</span>
-            <div className="text-xl font-bold text-slate-900 mt-1">
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 print:text-slate-600 uppercase font-semibold">
+              Checagens Feitas
+            </span>
+            <div className="text-xl font-bold text-slate-900 dark:text-white print:text-black mt-1">
               {vistoriasFiltradas.length}
             </div>
           </div>
           <div>
-            <span className="text-[11px] text-slate-500 uppercase font-semibold">
-              Taxa de Aprovação
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 print:text-slate-600 uppercase font-semibold">
+              Aprovados sem Defeito
             </span>
-            <div className="text-xl font-bold text-emerald-600 mt-1">
+            <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400 print:text-emerald-700 mt-1">
               {vistoriasFiltradas.length > 0
                 ? `${Math.round(
                     (vistoriasFiltradas.filter((v) => v.status === 'Aprovado').length /
@@ -194,10 +205,10 @@ export const Relatorios: React.FC = () => {
             </div>
           </div>
           <div>
-            <span className="text-[11px] text-slate-500 uppercase font-semibold">
-              Pendências Resolvidas
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 print:text-slate-600 uppercase font-semibold">
+              Problemas Consertados
             </span>
-            <div className="text-xl font-bold text-sky-600 mt-1">
+            <div className="text-xl font-bold text-sky-600 dark:text-sky-400 print:text-sky-700 mt-1">
               {pendenciasFiltradas.filter((p) => p.status === 'Resolvida').length} /{' '}
               {pendenciasFiltradas.length}
             </div>
@@ -206,111 +217,143 @@ export const Relatorios: React.FC = () => {
 
         {/* Seção 1: Histórico de Vistorias e Checagens */}
         <div className="space-y-3 pt-2">
-          <h3 className="text-sm font-bold text-slate-900 border-b border-slate-200 pb-1.5 flex items-center gap-2">
-            <ClipboardCheck className="w-4 h-4 text-sky-600" />
-            1. Histórico de Checagens & Vistorias
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white print:text-black border-b border-slate-200 dark:border-slate-800 print:border-slate-300 pb-1.5 flex items-center gap-2">
+            <ClipboardCheck className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+            1. Histórico de Checagens & Revisões
           </h3>
 
           {vistoriasFiltradas.length === 0 ? (
-            <p className="text-xs text-slate-400 italic">Nenhuma vistoria registrada no período.</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 italic">
+              Nenhuma checagem realizada no período selecionado.
+            </p>
           ) : (
-            <table className="w-full text-left text-xs border border-slate-200">
-              <thead className="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
-                <tr>
-                  <th className="p-2">Cód.</th>
-                  <th className="p-2">Patrimônio / Equipamento</th>
-                  <th className="p-2">Setor</th>
-                  <th className="p-2">Data</th>
-                  <th className="p-2">Inspetor</th>
-                  <th className="p-2">Resultado</th>
-                  <th className="p-2">Observações</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200">
-                {vistoriasFiltradas.map((v) => (
-                  <tr key={v.id}>
-                    <td className="p-2 font-mono font-bold">{v.codigoVistoria}</td>
-                    <td className="p-2 font-medium">
-                      {v.numeroPatrimonio} - {v.nomeModelo}
-                    </td>
-                    <td className="p-2">{v.setor}</td>
-                    <td className="p-2">{new Date(v.dataVistoria).toLocaleDateString('pt-BR')}</td>
-                    <td className="p-2">{v.responsavelVistoria}</td>
-                    <td className="p-2 font-bold">
-                      <span
-                        className={
-                          v.status === 'Aprovado' ? 'text-emerald-700' : 'text-rose-700'
-                        }
-                      >
-                        {v.status}
-                      </span>
-                    </td>
-                    <td className="p-2 text-slate-600 truncate max-w-xs">{v.observacoes || '-'}</td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border border-slate-200 dark:border-slate-800 print:border-slate-300 min-w-[640px] print:min-w-0">
+                <thead className="bg-slate-100 dark:bg-slate-950 print:bg-slate-100 text-slate-700 dark:text-slate-300 print:text-slate-800 font-semibold border-b border-slate-200 dark:border-slate-800 print:border-slate-300">
+                  <tr>
+                    <th className="p-2">Cód.</th>
+                    <th className="p-2">Equipamento</th>
+                    <th className="p-2">Setor</th>
+                    <th className="p-2">Data</th>
+                    <th className="p-2">Quem Checou</th>
+                    <th className="p-2">Resultado</th>
+                    <th className="p-2">Anotações</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-800 print:divide-slate-300">
+                  {vistoriasFiltradas.map((v) => (
+                    <tr key={v.id}>
+                      <td className="p-2 font-mono font-bold text-slate-700 dark:text-slate-300 print:text-black">
+                        {v.codigoVistoria}
+                      </td>
+                      <td className="p-2 font-medium text-slate-900 dark:text-white print:text-black">
+                        {v.numeroPatrimonio} - {v.nomeModelo}
+                      </td>
+                      <td className="p-2 text-slate-600 dark:text-slate-400 print:text-slate-700">
+                        {v.setor}
+                      </td>
+                      <td className="p-2 text-slate-600 dark:text-slate-400 print:text-slate-700">
+                        {new Date(v.dataVistoria).toLocaleDateString('pt-BR')}
+                      </td>
+                      <td className="p-2 text-slate-800 dark:text-slate-200 print:text-black">
+                        {v.responsavelVistoria}
+                      </td>
+                      <td className="p-2 font-bold">
+                        <span
+                          className={
+                            v.status === 'Aprovado'
+                              ? 'text-emerald-700 dark:text-emerald-400'
+                              : 'text-rose-700 dark:text-rose-400'
+                          }
+                        >
+                          {v.status}
+                        </span>
+                      </td>
+                      <td className="p-2 text-slate-600 dark:text-slate-400 print:text-slate-700 truncate max-w-xs">
+                        {v.observacoes || '-'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
 
         {/* Seção 2: Histórico de Problemas, Prazos e Soluções */}
         <div className="space-y-3 pt-4">
-          <h3 className="text-sm font-bold text-slate-900 border-b border-slate-200 pb-1.5 flex items-center gap-2">
-            <ClockAlert className="w-4 h-4 text-amber-600" />
-            2. Histórico de Problemas & Prazos de Resolução
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white print:text-black border-b border-slate-200 dark:border-slate-800 print:border-slate-300 pb-1.5 flex items-center gap-2">
+            <ClockAlert className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+            2. Histórico de Problemas & Consertos
           </h3>
 
           {pendenciasFiltradas.length === 0 ? (
-            <p className="text-xs text-slate-400 italic">Nenhuma pendência registrada no período.</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 italic">
+              Nenhum problema registrado no período selecionado.
+            </p>
           ) : (
-            <table className="w-full text-left text-xs border border-slate-200">
-              <thead className="bg-slate-100 text-slate-700 font-semibold border-b border-slate-200">
-                <tr>
-                  <th className="p-2">Cód.</th>
-                  <th className="p-2">Título do Problema</th>
-                  <th className="p-2">Patrimônio</th>
-                  <th className="p-2">Responsável</th>
-                  <th className="p-2">Prazo Limite</th>
-                  <th className="p-2">Status</th>
-                  <th className="p-2">Solução Aplicada</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200">
-                {pendenciasFiltradas.map((p) => (
-                  <tr key={p.id}>
-                    <td className="p-2 font-mono font-bold">{p.codigoPendencia}</td>
-                    <td className="p-2 font-medium">{p.titulo}</td>
-                    <td className="p-2">{p.numeroPatrimonio}</td>
-                    <td className="p-2">{p.responsavel}</td>
-                    <td className="p-2">{new Date(p.prazoLimite).toLocaleDateString('pt-BR')}</td>
-                    <td className="p-2 font-bold">
-                      <span
-                        className={
-                          p.status === 'Resolvida'
-                            ? 'text-emerald-700'
-                            : p.estaAtrasada
-                            ? 'text-rose-700'
-                            : 'text-amber-700'
-                        }
-                      >
-                        {p.status}
-                      </span>
-                    </td>
-                    <td className="p-2 text-slate-600">{p.solucaoAplicada || 'Aguardando solução'}</td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border border-slate-200 dark:border-slate-800 print:border-slate-300 min-w-[640px] print:min-w-0">
+                <thead className="bg-slate-100 dark:bg-slate-950 print:bg-slate-100 text-slate-700 dark:text-slate-300 print:text-slate-800 font-semibold border-b border-slate-200 dark:border-slate-800 print:border-slate-300">
+                  <tr>
+                    <th className="p-2">Cód.</th>
+                    <th className="p-2">Problema / Defeito</th>
+                    <th className="p-2">Equipamento</th>
+                    <th className="p-2">Quem Consertou</th>
+                    <th className="p-2">Prazo</th>
+                    <th className="p-2">Situação</th>
+                    <th className="p-2">Como foi resolvido</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-800 print:divide-slate-300">
+                  {pendenciasFiltradas.map((p) => (
+                    <tr key={p.id}>
+                      <td className="p-2 font-mono font-bold text-slate-700 dark:text-slate-300 print:text-black">
+                        {p.codigoPendencia}
+                      </td>
+                      <td className="p-2 font-medium text-slate-900 dark:text-white print:text-black">
+                        {p.titulo}
+                      </td>
+                      <td className="p-2 text-slate-600 dark:text-slate-400 print:text-slate-700">
+                        {p.numeroPatrimonio}
+                      </td>
+                      <td className="p-2 text-slate-800 dark:text-slate-200 print:text-black">
+                        {p.responsavel}
+                      </td>
+                      <td className="p-2 text-slate-600 dark:text-slate-400 print:text-slate-700">
+                        {new Date(p.prazoLimite).toLocaleDateString('pt-BR')}
+                      </td>
+                      <td className="p-2 font-bold">
+                        <span
+                          className={
+                            p.status === 'Resolvida'
+                              ? 'text-emerald-700 dark:text-emerald-400'
+                              : p.estaAtrasada
+                              ? 'text-rose-700 dark:text-rose-400'
+                              : 'text-amber-700 dark:text-amber-400'
+                          }
+                        >
+                          {p.status === 'Resolvida' ? 'Consertado' : p.status}
+                        </span>
+                      </td>
+                      <td className="p-2 text-slate-600 dark:text-slate-400 print:text-slate-700">
+                        {p.solucaoAplicada || 'Aguardando conserto'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
 
         {/* Rodapé de Assinatura para Prestação de Contas */}
-        <div className="pt-12 border-t border-slate-200 flex justify-between text-center text-xs text-slate-600">
-          <div className="w-64 border-t border-slate-400 pt-2">
-            <p className="font-bold">Responsável pela Qualidade / Vistorias</p>
+        <div className="pt-8 sm:pt-12 border-t border-slate-200 dark:border-slate-800 print:border-slate-400 flex flex-col sm:flex-row gap-8 sm:gap-0 justify-between items-center text-center text-xs text-slate-600 dark:text-slate-400 print:text-black print:flex-row">
+          <div className="w-full sm:w-64 border-t border-slate-400 pt-2">
+            <p className="font-bold">Responsável pelas Checagens</p>
           </div>
-          <div className="w-64 border-t border-slate-400 pt-2">
-            <p className="font-bold">Diretoria / Gestão do Escritório</p>
+          <div className="w-full sm:w-64 border-t border-slate-400 pt-2">
+            <p className="font-bold">Diretoria / Gestão Geral</p>
           </div>
         </div>
       </div>

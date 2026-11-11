@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { ThemeProvider } from './context/ThemeContext';
 import { Sidebar, NavItem } from './components/Sidebar';
 import { Header } from './components/Header';
 import { Login } from './pages/Login';
@@ -9,7 +10,7 @@ import { Pendencias } from './pages/Pendencias';
 import { Relatorios } from './pages/Relatorios';
 import { Usuario } from './types';
 
-export const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const [usuario, setUsuario] = useState<Usuario | null>(() => {
     const salvo = localStorage.getItem('usuario_logado');
     if (salvo) {
@@ -24,6 +25,7 @@ export const App: React.FC = () => {
 
   const [currentTab, setCurrentTab] = useState<NavItem>('dashboard');
   const [refreshKey, setRefreshKey] = useState<number>(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
   const handleLogout = () => {
     localStorage.removeItem('usuario_logado');
@@ -38,28 +40,28 @@ export const App: React.FC = () => {
     switch (currentTab) {
       case 'dashboard':
         return {
-          title: 'Indicadores & KPIs de Gestão',
-          subtitle: 'Visão consolidada de máquinas, vistorias e controle de prazos em tempo real.',
+          title: 'Início & Resumo Geral',
+          subtitle: 'Acompanhe de forma simples o estado dos equipamentos, revisões e consertos.',
         };
       case 'maquinas':
         return {
-          title: 'Controle de Máquinas & Patrimônio',
-          subtitle: 'Cadastre o ID/patrimônio, quem está com a máquina, setor e status operacional.',
+          title: 'Máquinas & Equipamentos',
+          subtitle: 'Veja com quem está cada item e se ele está funcionando normalmente.',
         };
       case 'vistorias':
         return {
-          title: 'Controle de Checagens & Vistorias',
-          subtitle: 'Registro das revisões feitas, quem conferiu e aprovação/reprovação.',
+          title: 'Checagens & Revisões',
+          subtitle: 'Anote as conferências feitas e marque se o item está aprovado ou com defeito.',
         };
       case 'pendencias':
         return {
-          title: 'Controle de Prazos & Pendências',
-          subtitle: 'Registro de falhas, quem tem que resolver e data limite para consertar.',
+          title: 'Problemas & Prazos',
+          subtitle: 'Anote o que estragou, quem vai consertar e o prazo para resolver.',
         };
       case 'relatorios':
         return {
-          title: 'Relatórios & Histórico Consolidado',
-          subtitle: 'Geração de relatórios com datas de checagem, falhas e histórico de resoluções.',
+          title: 'Relatórios & Histórico',
+          subtitle: 'Puxe e imprima relatórios com tudo o que foi checado e consertado.',
         };
     }
   };
@@ -67,13 +69,15 @@ export const App: React.FC = () => {
   const { title, subtitle } = getPageInfo();
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-50 font-sans">
+    <div className="flex h-screen h-[100dvh] w-full overflow-hidden bg-slate-50 dark:bg-slate-950 font-sans transition-colors duration-200">
       {/* Sidebar */}
       <Sidebar
         currentTab={currentTab}
         onSelectTab={setCurrentTab}
         usuario={usuario}
         onLogout={handleLogout}
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
       />
 
       {/* Main Content Area */}
@@ -82,6 +86,7 @@ export const App: React.FC = () => {
           title={title}
           subtitle={subtitle}
           onRefresh={() => setRefreshKey((prev) => prev + 1)}
+          onToggleMobileMenu={() => setIsMobileMenuOpen((prev) => !prev)}
         />
 
         <main className="flex-1 overflow-y-auto" key={refreshKey}>
@@ -95,6 +100,14 @@ export const App: React.FC = () => {
         </main>
       </div>
     </div>
+  );
+};
+
+export const App: React.FC = () => {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   );
 };
 

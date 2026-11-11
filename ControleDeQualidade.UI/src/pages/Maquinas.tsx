@@ -4,16 +4,13 @@ import { Maquina, MaquinaInput } from '../types';
 import {
   Plus,
   Search,
-  Filter,
   Laptop,
   User,
   Building2,
   Calendar,
-  AlertTriangle,
   Edit2,
   Trash2,
   X,
-  CheckCircle2,
 } from 'lucide-react';
 
 export const Maquinas: React.FC = () => {
@@ -126,53 +123,54 @@ export const Maquinas: React.FC = () => {
     }
   };
 
-  // Setores únicos para o filtro
   const setoresUnicos = Array.from(new Set(maquinas.map((m) => m.setor).filter(Boolean)));
 
   return (
-    <div className="p-8 space-y-6 max-w-7xl mx-auto">
+    <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl mx-auto">
       {/* Header com botão de cadastro */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">Controle de Máquinas & Patrimônio</h2>
-          <p className="text-xs text-slate-500 mt-1">
-            Cadastre os equipamentos, identifique o responsável por cada máquina e acompanhe o estado operacional.
+          <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+            Máquinas & Equipamentos
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 sm:mt-1">
+            Cadastre computadores, veículos ou rádios, veja com quem fica cada item e se está funcionando.
           </p>
         </div>
 
         <button
           onClick={() => handleOpenModal()}
-          className="flex items-center gap-2 px-4 py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-semibold transition-colors shadow-sm shrink-0"
+          className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2.5 bg-sky-600 hover:bg-sky-500 active:scale-95 text-white rounded-xl text-xs font-semibold transition-all shadow-sm shrink-0"
         >
           <Plus className="w-4 h-4" />
-          Cadastrar Máquina / Equipamento
+          Cadastrar Equipamento
         </button>
       </div>
 
       {/* Barra de Filtros e Busca */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row gap-3 items-center justify-between">
+      <div className="bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
         <div className="relative w-full md:w-80">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
           <input
             type="text"
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
-            placeholder="Buscar por patrimônio, modelo ou responsável..."
-            className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-sky-500 focus:outline-none"
+            placeholder="Pesquisar por nome, código ou responsável..."
+            className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-sky-500 focus:outline-none transition-colors"
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2.5 sm:gap-3 w-full md:w-auto">
           {/* Filtro Status */}
           <select
             value={filtroStatus}
             onChange={(e) => setFiltroStatus(e.target.value)}
-            className="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none"
+            className="w-full sm:w-auto text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-700 dark:text-slate-300 font-medium focus:outline-none"
           >
             <option value="todos">Todos os Status</option>
-            <option value="Ativo">Ativo / Em Uso</option>
-            <option value="Em Manutenção">Em Manutenção</option>
-            <option value="Disponível">Disponível no Estoque</option>
+            <option value="Ativo">Funcionando Normal</option>
+            <option value="Em Manutenção">Em Manutenção / Quebrado</option>
+            <option value="Disponível">Guardado / No Estoque</option>
             <option value="Desativado">Desativado</option>
           </select>
 
@@ -180,7 +178,7 @@ export const Maquinas: React.FC = () => {
           <select
             value={filtroSetor}
             onChange={(e) => setFiltroSetor(e.target.value)}
-            className="text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-700 font-medium focus:outline-none"
+            className="w-full sm:w-auto text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-700 dark:text-slate-300 font-medium focus:outline-none"
           >
             <option value="todos">Todos os Setores</option>
             {setoresUnicos.map((s) => (
@@ -194,13 +192,17 @@ export const Maquinas: React.FC = () => {
 
       {/* Lista / Tabela de Equipamentos */}
       {loading ? (
-        <div className="py-12 text-center text-slate-400 text-xs">Carregando patrimônio...</div>
+        <div className="py-12 text-center text-slate-400 dark:text-slate-500 text-xs">
+          Carregando equipamentos...
+        </div>
       ) : maquinas.length === 0 ? (
-        <div className="bg-white p-12 text-center rounded-2xl border border-slate-200/80">
-          <Laptop className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-          <h3 className="font-bold text-slate-700 text-sm">Nenhum equipamento encontrado</h3>
-          <p className="text-xs text-slate-500 mt-1">
-            Cadastre seu primeiro equipamento usando o botão acima.
+        <div className="bg-white dark:bg-slate-900 p-12 text-center rounded-2xl border border-slate-200/80 dark:border-slate-800">
+          <Laptop className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+          <h3 className="font-bold text-slate-700 dark:text-slate-300 text-sm">
+            Nenhum equipamento cadastrado ainda
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            Clique no botão azul acima para cadastrar seu primeiro item (ex: notebook, carro, rádio).
           </p>
         </div>
       ) : (
@@ -210,52 +212,55 @@ export const Maquinas: React.FC = () => {
             return (
               <div
                 key={m.id}
-                className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4"
+                className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[11px] font-mono px-2 py-0.5 bg-sky-50 text-sky-700 font-bold rounded-lg border border-sky-100">
+                    <span className="text-[11px] font-mono px-2 py-0.5 bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-bold rounded-lg border border-sky-100 dark:border-sky-900/60">
                       {m.numeroPatrimonio}
                     </span>
                     <span
                       className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
                         isManutencao
-                          ? 'bg-amber-100 text-amber-800'
+                          ? 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300'
                           : m.status === 'Ativo'
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-slate-100 text-slate-700'
+                          ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'
+                          : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
                       }`}
                     >
                       ● {m.status}
                     </span>
                   </div>
 
-                  <h3 className="font-bold text-slate-900 text-sm mt-3 leading-tight">
+                  <h3 className="font-bold text-slate-900 dark:text-white text-sm mt-3 leading-tight">
                     {m.nomeModelo}
                   </h3>
-                  <p className="text-[11px] text-slate-500 mt-0.5">{m.categoria}</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                    {m.categoria}
+                  </p>
 
-                  <div className="mt-4 space-y-2 border-t border-slate-100 pt-3 text-xs">
-                    <div className="flex items-center gap-2 text-slate-600">
+                  <div className="mt-4 space-y-2 border-t border-slate-100 dark:border-slate-800 pt-3 text-xs">
+                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                       <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                       <span className="truncate">
-                        Responsável: <strong className="text-slate-800">{m.responsavel}</strong>
+                        Responsável:{' '}
+                        <strong className="text-slate-800 dark:text-slate-200">{m.responsavel}</strong>
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2 text-slate-600">
+                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                       <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                       <span className="truncate">
-                        Setor: <strong className="text-slate-800">{m.setor}</strong>
+                        Setor: <strong className="text-slate-800 dark:text-slate-200">{m.setor}</strong>
                       </span>
                     </div>
 
                     {m.proximaRevisao && (
-                      <div className="flex items-center gap-2 text-slate-600">
+                      <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                         <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                         <span>
                           Próx. Revisão:{' '}
-                          <strong className="text-slate-800">
+                          <strong className="text-slate-800 dark:text-slate-200">
                             {new Date(m.proximaRevisao).toLocaleDateString('pt-BR')}
                           </strong>
                         </span>
@@ -264,28 +269,28 @@ export const Maquinas: React.FC = () => {
                   </div>
 
                   {m.observacoes && (
-                    <p className="mt-3 text-[11px] text-slate-500 bg-slate-50 p-2 rounded-lg italic">
+                    <p className="mt-3 text-[11px] text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-950/60 p-2 rounded-lg italic border border-slate-100 dark:border-slate-800/60">
                       "{m.observacoes}"
                     </p>
                   )}
                 </div>
 
-                <div className="flex items-center justify-between pt-3 border-t border-slate-100">
-                  <span className="text-[10px] text-slate-400">
-                    {m.totalVistorias ?? 0} vistorias realizadas
+                <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500">
+                    {m.totalVistorias ?? 0} checagens feitas
                   </span>
 
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => handleOpenModal(m)}
-                      className="p-1.5 text-slate-500 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors"
+                      className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
                       title="Editar máquina"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => handleExcluir(m.id)}
-                      className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                      className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
                       title="Excluir máquina"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -300,153 +305,163 @@ export const Maquinas: React.FC = () => {
 
       {/* Modal de Cadastro / Edição */}
       {showModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 border border-slate-100">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="font-bold text-slate-900 text-sm">
+        <div className="fixed inset-0 z-50 bg-slate-955/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg p-5 sm:p-6 border border-slate-100 dark:border-slate-800 max-h-[92vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="font-bold text-slate-900 dark:text-white text-sm">
                 {editingId ? 'Editar Equipamento' : 'Novo Equipamento / Patrimônio'}
               </h3>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg"
+                className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {errorMsg && (
-              <div className="mt-3 p-2.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl">
+              <div className="mt-3 p-2.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-700 dark:text-rose-300 text-xs rounded-xl">
                 {errorMsg}
               </div>
             )}
 
             <form onSubmit={handleSalvar} className="mt-4 space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Nº Patrimônio / ID *
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Código ou Identificação *
                   </label>
                   <input
                     type="text"
                     required
                     value={patrimonio}
                     onChange={(e) => setPatrimonio(e.target.value)}
-                    placeholder="Ex: PAT-010"
-                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-mono uppercase focus:outline-none focus:ring-2 focus:ring-sky-500"
+                    placeholder="Ex: NOTE-01, HT-05, PLACA-1234"
+                    className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 font-mono uppercase text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Categoria</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Tipo do Item
+                  </label>
                   <select
                     value={categoria}
                     onChange={(e) => setCategoria(e.target.value)}
-                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                    className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
                   >
-                    <option value="Informática">Informática (Notebook, PC)</option>
-                    <option value="Comunicação">Comunicação (Rádio HT)</option>
-                    <option value="CFTV">CFTV / Câmeras</option>
+                    <option value="Informática">Informática (Notebook, PC, Impressora)</option>
+                    <option value="Comunicação">Comunicação (Rádio HT, Celular)</option>
+                    <option value="CFTV">CFTV / Câmeras de Segurança</option>
                     <option value="Segurança">Segurança / Alarme</option>
                     <option value="Veículo">Veículo / Viatura</option>
-                    <option value="Mobiliário">Mobiliário</option>
-                    <option value="Outro">Outro</option>
+                    <option value="Mobiliário">Móveis / Cadeiras</option>
+                    <option value="Outro">Outro Equipamento</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Nome / Modelo do Equipamento *
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Nome do Equipamento *
                 </label>
                 <input
                   type="text"
                   required
                   value={nomeModelo}
                   onChange={(e) => setNomeModelo(e.target.value)}
-                  placeholder="Ex: Notebook Dell Vostro 3520"
-                  className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  placeholder="Ex: Notebook Dell Inspiron, Gol Branco 2022"
+                  className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Responsável (Com quem está) *
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Com quem fica? (Responsável) *
                   </label>
                   <input
                     type="text"
                     required
                     value={responsavel}
                     onChange={(e) => setResponsavel(e.target.value)}
-                    placeholder="Ex: Dra. Andressa, Pedro"
-                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                    placeholder="Ex: Dr. Carlos, Portaria 1, TI"
+                    className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Setor *</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Setor ou Sala *
+                  </label>
                   <input
                     type="text"
                     required
                     value={setor}
                     onChange={(e) => setSetor(e.target.value)}
-                    placeholder="Ex: Advocacia, Segurança, Portaria"
-                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                    placeholder="Ex: Advocacia, Segurança, Recepção"
+                    className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Status Operacional</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Situação Atual
+                  </label>
                   <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
-                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                    className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
                   >
-                    <option value="Ativo">Ativo / Funcionando</option>
-                    <option value="Em Manutenção">Em Manutenção</option>
-                    <option value="Disponível">Disponível no Estoque</option>
+                    <option value="Ativo">Funcionando Normal</option>
+                    <option value="Em Manutenção">Em Manutenção / Quebrado</option>
+                    <option value="Disponível">Guardado / No Estoque</option>
                     <option value="Desativado">Desativado</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Próxima Revisão / Checagem</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Próxima Revisão (Opcional)
+                  </label>
                   <input
                     type="date"
                     value={proximaRevisao}
                     onChange={(e) => setProximaRevisao(e.target.value)}
-                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                    className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Observações / Detalhes</label>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Anotações Extras (Opcional)
+                </label>
                 <textarea
                   rows={2}
                   value={observacoes}
                   onChange={(e) => setObservacoes(e.target.value)}
-                  placeholder="Informações adicionais, número de série, etc."
-                  className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  placeholder="Alguma informação importante sobre o equipamento (ex: fica na mesa 2, comprado novo em jan/2026)..."
+                  className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
                 />
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col-reverse sm:flex-row justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+                  className="w-full sm:w-auto px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors text-center"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-5 py-2 text-xs font-semibold bg-sky-600 hover:bg-sky-500 text-white rounded-xl transition-colors shadow-sm disabled:opacity-50"
+                  className="w-full sm:w-auto px-5 py-2 text-xs font-semibold bg-sky-600 hover:bg-sky-500 active:scale-95 text-white rounded-xl transition-all shadow-sm disabled:opacity-50 text-center"
                 >
-                  {saving ? 'Salvando...' : 'Salvar Equipamento'}
+                  {saving ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Cadastrar Equipamento'}
                 </button>
               </div>
             </form>

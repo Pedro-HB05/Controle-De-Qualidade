@@ -3,16 +3,13 @@ import { api } from '../services/api';
 import { Pendencia, Maquina, PendenciaInput } from '../types';
 import {
   Plus,
-  ClockAlert,
   CheckCircle2,
-  AlertTriangle,
   Search,
   Check,
   Trash2,
   X,
   User,
   Calendar,
-  Building2,
   Laptop,
 } from 'lucide-react';
 
@@ -133,50 +130,57 @@ export const Pendencias: React.FC = () => {
   };
 
   return (
-    <div className="p-8 space-y-6 max-w-7xl mx-auto">
+    <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">Controle de Prazos & Pendências</h2>
-          <p className="text-xs text-slate-500 mt-1">
-            Acompanhe falhas em aberto, quem é o encarregado e garanta que nada passe do prazo.
+          <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+            Problemas & Prazos
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 sm:mt-1">
+            Acompanhe tudo o que estragou ou precisa de conserto, quem vai resolver e a data limite.
           </p>
         </div>
 
         <button
           onClick={handleOpenNovoModal}
-          className="flex items-center gap-2 px-4 py-2.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-semibold transition-colors shadow-sm shrink-0"
+          className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2.5 bg-amber-600 hover:bg-amber-500 active:scale-95 text-white rounded-xl text-xs font-semibold transition-all shadow-sm shrink-0"
         >
           <Plus className="w-4 h-4" />
-          Registrar Nova Pendência
+          Anotar Novo Problema
         </button>
       </div>
 
       {/* Busca e Filtros */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row gap-3 items-center justify-between">
+      <div className="bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
         <div className="relative w-full md:w-80">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
           <input
             type="text"
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
-            placeholder="Buscar por título, responsável ou código..."
-            className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-500 focus:outline-none"
+            placeholder="Pesquisar por problema, quem vai resolver ou código..."
+            className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-amber-500 focus:outline-none transition-colors"
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {['todos', 'Aberta', 'Atrasadas', 'Resolvida'].map((st) => (
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+          {[
+            { id: 'todos', label: 'Todos' },
+            { id: 'Aberta', label: 'Para Consertar' },
+            { id: 'Atrasadas', label: 'Atrasados ⚠️' },
+            { id: 'Resolvida', label: 'Já Consertados ✓' },
+          ].map((st) => (
             <button
-              key={st}
-              onClick={() => setFiltroStatus(st)}
+              key={st.id}
+              onClick={() => setFiltroStatus(st.id)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                filtroStatus === st
-                  ? 'bg-slate-900 text-white'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                filtroStatus === st.id
+                  ? 'bg-slate-900 dark:bg-sky-600 text-white'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
-              {st === 'todos' ? 'Todas' : st}
+              {st.label}
             </button>
           ))}
         </div>
@@ -184,87 +188,93 @@ export const Pendencias: React.FC = () => {
 
       {/* Grid de Pendências */}
       {loading ? (
-        <div className="py-12 text-center text-slate-400 text-xs">Carregando pendências...</div>
+        <div className="py-12 text-center text-slate-400 dark:text-slate-500 text-xs">
+          Carregando problemas...
+        </div>
       ) : pendencias.length === 0 ? (
-        <div className="bg-white p-12 text-center rounded-2xl border border-slate-200/80">
+        <div className="bg-white dark:bg-slate-900 p-12 text-center rounded-2xl border border-slate-200/80 dark:border-slate-800">
           <CheckCircle2 className="w-12 h-12 text-emerald-400 mx-auto mb-3" />
-          <h3 className="font-bold text-slate-700 text-sm">Nenhuma pendência encontrada</h3>
-          <p className="text-xs text-slate-500 mt-1">
-            Todas as manutenções e prazos estão em dia!
+          <h3 className="font-bold text-slate-700 dark:text-slate-300 text-sm">
+            Tudo em ordem! Nenhum problema pendente
+          </h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+            Todas as manutenções e consertos estão em dia.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
           {pendencias.map((p) => {
             const isResolvida = p.status === 'Resolvida';
             return (
               <div
                 key={p.id}
-                className={`bg-white p-5 rounded-2xl border shadow-sm transition-all flex flex-col justify-between space-y-4 ${
+                className={`bg-white dark:bg-slate-900 p-5 rounded-2xl border shadow-sm transition-all flex flex-col justify-between space-y-4 ${
                   p.estaAtrasada
-                    ? 'border-rose-300 ring-1 ring-rose-200'
+                    ? 'border-rose-300 dark:border-rose-900/80 ring-1 ring-rose-200 dark:ring-rose-900/50'
                     : isResolvida
-                    ? 'border-emerald-200 opacity-90'
-                    : 'border-slate-200/80 hover:shadow-md'
+                    ? 'border-emerald-200 dark:border-emerald-900/60 opacity-90'
+                    : 'border-slate-200/80 dark:border-slate-800 hover:shadow-md'
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[11px] font-mono font-bold px-2 py-0.5 bg-slate-100 text-slate-700 rounded-lg">
+                    <span className="text-[11px] font-mono font-bold px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-lg">
                       {p.codigoPendencia}
                     </span>
 
                     <span
                       className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
                         isResolvida
-                          ? 'bg-emerald-100 text-emerald-800'
+                          ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'
                           : p.estaAtrasada
-                          ? 'bg-rose-100 text-rose-800'
-                          : 'bg-amber-100 text-amber-800'
+                          ? 'bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300'
+                          : 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300'
                       }`}
                     >
                       {isResolvida
-                        ? '✓ Resolvida'
+                        ? '✓ Consertado'
                         : p.estaAtrasada
                         ? '⚠️ Prazo Atrasado'
-                        : '● Em Aberto'}
+                        : '● Para Consertar'}
                     </span>
                   </div>
 
-                  <h3 className="font-bold text-slate-900 text-sm mt-3 leading-tight">
+                  <h3 className="font-bold text-slate-900 dark:text-white text-sm mt-3 leading-tight">
                     {p.titulo}
                   </h3>
-                  <p className="text-xs text-slate-600 mt-1 line-clamp-2">
-                    {p.descricao || 'Sem descrição detalhada.'}
+                  <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 line-clamp-2">
+                    {p.descricao || 'Sem anotações adicionais.'}
                   </p>
 
-                  <div className="mt-4 space-y-2 border-t border-slate-100 pt-3 text-xs">
-                    <div className="flex items-center gap-2 text-slate-600">
+                  <div className="mt-4 space-y-2 border-t border-slate-100 dark:border-slate-800 pt-3 text-xs">
+                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                       <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                       <span className="truncate">
-                        Responsável: <strong className="text-slate-800">{p.responsavel}</strong>
+                        Quem vai consertar: <strong className="text-slate-800 dark:text-slate-200">{p.responsavel}</strong>
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2 text-slate-600">
+                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                       <Laptop className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                       <span className="truncate">
-                        Patrimônio:{' '}
-                        <strong className="text-slate-800">
+                        Equipamento:{' '}
+                        <strong className="text-slate-800 dark:text-slate-200">
                           {p.numeroPatrimonio !== 'Geral'
                             ? `${p.numeroPatrimonio} (${p.nomeModelo})`
-                            : 'Geral'}
+                            : 'Geral / Sem vínculo'}
                         </strong>
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2 text-slate-600">
+                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                       <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                       <span>
-                        Data Limite:{' '}
+                        Prazo Máximo:{' '}
                         <strong
                           className={
-                            p.estaAtrasada ? 'text-rose-600 font-bold' : 'text-slate-800 font-bold'
+                            p.estaAtrasada
+                              ? 'text-rose-600 dark:text-rose-400 font-bold'
+                              : 'text-slate-800 dark:text-slate-200 font-bold'
                           }
                         >
                           {new Date(p.prazoLimite).toLocaleDateString('pt-BR')}
@@ -274,30 +284,30 @@ export const Pendencias: React.FC = () => {
                   </div>
 
                   {isResolvida && p.solucaoAplicada && (
-                    <div className="mt-3 p-2 bg-emerald-50 border border-emerald-100 rounded-xl text-[11px] text-emerald-800">
-                      <strong>Solução:</strong> {p.solucaoAplicada}
+                    <div className="mt-3 p-2 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-100 dark:border-emerald-900/60 rounded-xl text-[11px] text-emerald-800 dark:text-emerald-300">
+                      <strong>Como foi consertado:</strong> {p.solucaoAplicada}
                     </div>
                   )}
                 </div>
 
-                <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
                   {!isResolvida ? (
                     <button
                       onClick={() => handleOpenResolver(p)}
-                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm"
+                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
                     >
                       <Check className="w-3.5 h-3.5" />
-                      Marcar como Resolvido
+                      Marcar como Consertado
                     </button>
                   ) : (
-                    <span className="text-[11px] text-emerald-600 font-semibold">
-                      Concluído em {new Date(p.dataResolucao || '').toLocaleDateString('pt-BR')}
+                    <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
+                      Consertado em {new Date(p.dataResolucao || '').toLocaleDateString('pt-BR')}
                     </span>
                   )}
 
                   <button
                     onClick={() => handleExcluir(p.id)}
-                    className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                    className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
                     title="Excluir pendência"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -311,47 +321,49 @@ export const Pendencias: React.FC = () => {
 
       {/* Modal Nova Pendência */}
       {showNovoModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 border border-slate-100">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="font-bold text-slate-900 text-sm">Registrar Nova Pendência / Falha</h3>
+        <div className="fixed inset-0 z-50 bg-slate-955/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg p-5 sm:p-6 border border-slate-100 dark:border-slate-800 max-h-[92vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="font-bold text-slate-900 dark:text-white text-sm">
+                Anotar Problema para Conserto
+              </h3>
               <button
                 onClick={() => setShowNovoModal(false)}
-                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg"
+                className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             {errorMsg && (
-              <div className="mt-3 p-2.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl">
+              <div className="mt-3 p-2.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-700 dark:text-rose-300 text-xs rounded-xl">
                 {errorMsg}
               </div>
             )}
 
             <form onSubmit={handleSalvarNova} className="mt-4 space-y-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Título do Problema *
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  O que quebrou ou deu defeito? *
                 </label>
                 <input
                   type="text"
                   required
                   value={titulo}
                   onChange={(e) => setTitulo(e.target.value)}
-                  placeholder="Ex: Trocar bateria do rádio comunicador"
-                  className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  placeholder="Ex: Trocar bateria do rádio, tela do notebook falhando"
+                  className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Vincular a um Equipamento (Opcional)
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Qual é o equipamento? (Opcional)
                 </label>
                 <select
                   value={maquinaId || ''}
                   onChange={(e) => setMaquinaId(e.target.value ? Number(e.target.value) : undefined)}
-                  className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                 >
                   <option value="">Problema Geral / Sem vínculo</option>
                   {maquinas.map((m) => (
@@ -362,62 +374,62 @@ export const Pendencias: React.FC = () => {
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Quem tem que resolver? *
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Quem vai consertar? *
                   </label>
                   <input
                     type="text"
                     required
                     value={responsavel}
                     onChange={(e) => setResponsavel(e.target.value)}
-                    placeholder="Ex: Técnico TI, Manutenção"
-                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    placeholder="Ex: Técnico de TI, Suporte, Mecânico"
+                    className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Data Limite (Prazo) *
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Prazo Limite para Consertar *
                   </label>
                   <input
                     type="date"
                     required
                     value={prazoLimite}
                     onChange={(e) => setPrazoLimite(e.target.value)}
-                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Descrição do Defeito
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  Anotações sobre o defeito (Opcional)
                 </label>
                 <textarea
                   rows={2}
                   value={descricao}
                   onChange={(e) => setDescricao(e.target.value)}
-                  placeholder="Explique o que aconteceu, sintomas da falha, etc."
-                  className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  placeholder="Explique o que aconteceu para ajudar quem for consertar..."
+                  className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col-reverse sm:flex-row justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowNovoModal(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+                  className="w-full sm:w-auto px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors text-center"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-5 py-2 text-xs font-semibold bg-amber-600 hover:bg-amber-500 text-white rounded-xl transition-colors shadow-sm disabled:opacity-50"
+                  className="w-full sm:w-auto px-5 py-2 text-xs font-semibold bg-amber-600 hover:bg-amber-500 active:scale-95 text-white rounded-xl transition-all shadow-sm disabled:opacity-50 text-center"
                 >
-                  {saving ? 'Registrando...' : 'Registrar Pendência'}
+                  {saving ? 'Salvando...' : 'Salvar Problema'}
                 </button>
               </div>
             </form>
@@ -427,29 +439,33 @@ export const Pendencias: React.FC = () => {
 
       {/* Modal Concluir / Resolver Pendência */}
       {showResolverModal && pendenciaSelecionada && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 border border-slate-100">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="font-bold text-slate-900 text-sm">Resolver e Concluir Pendência</h3>
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md p-5 sm:p-6 border border-slate-100 dark:border-slate-800 max-h-[92vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+              <h3 className="font-bold text-slate-900 dark:text-white text-sm">
+                Confirmar que o Problema foi Resolvido
+              </h3>
               <button
                 onClick={() => setShowResolverModal(false)}
-                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg"
+                className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleConcluirTratativa} className="mt-4 space-y-3">
-              <div className="p-3 bg-slate-50 rounded-xl text-xs space-y-1">
-                <div className="font-bold text-slate-900">{pendenciaSelecionada.titulo}</div>
-                <div className="text-slate-500">
-                  Patrimônio: {pendenciaSelecionada.numeroPatrimonio} | Responsável:{' '}
+              <div className="p-3 bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 rounded-xl text-xs space-y-1">
+                <div className="font-bold text-slate-900 dark:text-white">
+                  {pendenciaSelecionada.titulo}
+                </div>
+                <div className="text-slate-500 dark:text-slate-400">
+                  Equipamento: {pendenciaSelecionada.numeroPatrimonio} | Quem consertou:{' '}
                   {pendenciaSelecionada.responsavel}
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   O que foi feito para consertar? *
                 </label>
                 <textarea
@@ -457,25 +473,25 @@ export const Pendencias: React.FC = () => {
                   rows={3}
                   value={solucaoAplicada}
                   onChange={(e) => setSolucaoAplicada(e.target.value)}
-                  placeholder="Ex: Trocada a fonte de alimentação queimada por uma nova de 12V e testada com sucesso."
-                  className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  placeholder="Ex: Trocada a peça queimada por uma nova e testado com sucesso."
+                  className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col-reverse sm:flex-row justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowResolverModal(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors"
+                  className="w-full sm:w-auto px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors text-center"
                 >
                   Voltar
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-5 py-2 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl transition-colors shadow-sm disabled:opacity-50"
+                  className="w-full sm:w-auto px-5 py-2 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-xl transition-all shadow-sm disabled:opacity-50 text-center"
                 >
-                  {saving ? 'Concluindo...' : 'Marcar como Resolvido'}
+                  {saving ? 'Salvando...' : 'Confirmar Conserto'}
                 </button>
               </div>
             </form>
