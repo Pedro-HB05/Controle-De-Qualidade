@@ -22,6 +22,31 @@ public class DashboardController : ControllerBase
     {
         var agora = DateTime.UtcNow;
 
+        // Sincroniza vistorias cujas manutenções foram resolvidas
+        var vistoriasComPendenciaResolvida = await _context.Vistorias
+            .Where(v => v.Status != "Aprovado" && v.PendenciaGeradaId != null)
+            .Join(_context.Pendencias.Where(p => p.Status == "Resolvida"),
+                  v => v.PendenciaGeradaId,
+                  p => p.Id,
+                  (v, p) => new { Vistoria = v, Pendencia = p })
+            .ToListAsync();
+
+        if (vistoriasComPendenciaResolvida.Count > 0)
+        {
+            foreach (var item in vistoriasComPendenciaResolvida)
+            {
+                item.Vistoria.Status = "Aprovado";
+                var solucao = !string.IsNullOrWhiteSpace(item.Pendencia.SolucaoAplicada)
+                    ? item.Pendencia.SolucaoAplicada
+                    : "Manutenção concluída e aprovada.";
+                if (!item.Vistoria.Observacoes.Contains("[Reparo Concluído"))
+                {
+                    item.Vistoria.Observacoes += $" — [Reparo Concluído: {solucao}]";
+                }
+            }
+            await _context.SaveChangesAsync();
+        }
+
         // 1. Métricas de Máquinas / Patrimônio
         var totalMaquinas = await _context.Maquinas.CountAsync();
         var maquinasAtivas = await _context.Maquinas.CountAsync(m => m.Status == "Ativo");

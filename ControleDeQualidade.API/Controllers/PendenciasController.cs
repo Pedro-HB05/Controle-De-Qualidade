@@ -137,10 +137,37 @@ public class PendenciasController : ControllerBase
         pendencia.SolucaoAplicada = dto.SolucaoAplicada ?? string.Empty;
         pendencia.DataResolucao = DateTime.UtcNow;
 
-        // Se estiver vinculada a uma máquina que estava em manutenção, podemos sugerir ou reativar
+        // Se estiver vinculada a uma máquina que estava em manutenção, reativa a máquina
         if (pendencia.Maquina != null && pendencia.Maquina.Status == "Em Manutenção")
         {
             pendencia.Maquina.Status = "Ativo";
+        }
+
+        // Opção 1: Atualiza automaticamente a revisão técnica vinculada para "Aprovado"
+        var vistoriaVinculada = await _context.Vistorias.FirstOrDefaultAsync(v => v.PendenciaGeradaId == id);
+        if (vistoriaVinculada == null && pendencia.MaquinaId.HasValue)
+        {
+            vistoriaVinculada = await _context.Vistorias
+                .Where(v => v.MaquinaId == pendencia.MaquinaId.Value && v.Status != "Aprovado")
+                .OrderByDescending(v => v.DataVistoria)
+                .FirstOrDefaultAsync();
+        }
+
+        if (vistoriaVinculada != null)
+        {
+            vistoriaVinculada.Status = "Aprovado";
+            var solucaoTexto = !string.IsNullOrWhiteSpace(dto.SolucaoAplicada)
+                ? dto.SolucaoAplicada.Trim()
+                : "Manutenção concluída e testada com sucesso.";
+
+            if (string.IsNullOrWhiteSpace(vistoriaVinculada.Observacoes))
+            {
+                vistoriaVinculada.Observacoes = $"[Reparado]: {solucaoTexto}";
+            }
+            else if (!vistoriaVinculada.Observacoes.Contains("[Reparo Concluído"))
+            {
+                vistoriaVinculada.Observacoes += $" — [Reparo Concluído: {solucaoTexto}]";
+            }
         }
 
         await _context.SaveChangesAsync();
