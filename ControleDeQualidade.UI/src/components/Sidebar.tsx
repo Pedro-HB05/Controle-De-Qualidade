@@ -36,31 +36,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
       id: 'dashboard',
       label: 'Início',
       icon: <LayoutDashboard className="w-5 h-5" />,
-      desc: 'Resumo geral',
+      desc: 'Painel do Help Desk',
     },
     {
       id: 'maquinas',
-      label: 'Máquinas & Equipamentos',
+      label: 'Equipamentos & TI',
       icon: <Laptop className="w-5 h-5" />,
-      desc: 'Onde está cada item',
+      desc: 'PCs, notebooks e usuários',
     },
     {
       id: 'vistorias',
-      label: 'Checagens & Revisões',
+      label: 'Revisões & Testes',
       icon: <ClipboardCheck className="w-5 h-5" />,
-      desc: 'Conferir se está funcionando',
+      desc: 'Checagens da equipe de TI',
     },
     {
       id: 'pendencias',
-      label: 'Problemas & Prazos',
+      label: 'Manutenções & Prazos',
       icon: <ClockAlert className="w-5 h-5" />,
-      desc: 'O que quebrou e consertos',
+      desc: 'Consertos e prazos limite',
     },
     {
       id: 'relatorios',
-      label: 'Relatórios & Histórico',
+      label: 'Relatórios de TI',
       icon: <FileSpreadsheet className="w-5 h-5" />,
-      desc: 'Ver histórico e imprimir',
+      desc: 'Histórico para diretoria',
     },
   ];
 
@@ -95,7 +95,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <h1 className="font-bold text-white text-base leading-tight tracking-tight">
                 ControlDesk
               </h1>
-              <span className="text-[11px] text-sky-400 font-medium">Controle de Equipamentos</span>
+              <span className="text-[11px] text-sky-400 font-medium">Help Desk & TI</span>
             </div>
           </div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { Sidebar, NavItem } from './components/Sidebar';
 import { Header } from './components/Header';
@@ -13,7 +13,8 @@ import { Usuario } from './types';
 const AppContent: React.FC = () => {
   const [usuario, setUsuario] = useState<Usuario | null>(() => {
     const salvo = localStorage.getItem('usuario_logado');
-    if (salvo) {
+    const token = localStorage.getItem('token');
+    if (salvo && token) {
       try {
         return JSON.parse(salvo);
       } catch {
@@ -27,7 +28,16 @@ const AppContent: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState<number>(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
+  useEffect(() => {
+    const handleAuthLogout = () => {
+      setUsuario(null);
+    };
+    window.addEventListener('auth-logout', handleAuthLogout);
+    return () => window.removeEventListener('auth-logout', handleAuthLogout);
+  }, []);
+
   const handleLogout = () => {
+    localStorage.removeItem('token');
     localStorage.removeItem('usuario_logado');
     setUsuario(null);
   };
@@ -40,28 +50,28 @@ const AppContent: React.FC = () => {
     switch (currentTab) {
       case 'dashboard':
         return {
-          title: 'Início & Resumo Geral',
-          subtitle: 'Acompanhe de forma simples o estado dos equipamentos, revisões e consertos.',
+          title: 'Painel do Help Desk',
+          subtitle: 'Visão geral do inventário de TI, manutenções em andamento e revisões preventivas.',
         };
       case 'maquinas':
         return {
-          title: 'Máquinas & Equipamentos',
-          subtitle: 'Veja com quem está cada item e se ele está funcionando normalmente.',
+          title: 'Inventário de TI & Equipamentos',
+          subtitle: 'Cadastre computadores, notebooks e equipamentos, e acompanhe com qual colaborador ou setor o item está.',
         };
       case 'vistorias':
         return {
-          title: 'Checagens & Revisões',
-          subtitle: 'Anote as conferências feitas e marque se o item está aprovado ou com defeito.',
+          title: 'Revisões Preventivas & Testes',
+          subtitle: 'Registre os testes e checagens técnicas feitas pela equipe de Help Desk nos equipamentos.',
         };
       case 'pendencias':
         return {
-          title: 'Problemas & Prazos',
-          subtitle: 'Anote o que estragou, quem vai consertar e o prazo para resolver.',
+          title: 'Manutenções & Prazos',
+          subtitle: 'Acompanhe equipamentos em conserto, técnico responsável pelo reparo e a data limite de entrega.',
         };
       case 'relatorios':
         return {
-          title: 'Relatórios & Histórico',
-          subtitle: 'Puxe e imprima relatórios com tudo o que foi checado e consertado.',
+          title: 'Relatórios & Histórico de TI',
+          subtitle: 'Puxe e imprima relatórios completos de equipamentos e manutenções para a diretoria.',
         };
     }
   };

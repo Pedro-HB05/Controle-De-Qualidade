@@ -121,10 +121,10 @@ export const Vistorias: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
           <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
-            Checagens & Revisões
+            Revisões Preventivas & Testes
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 sm:mt-1">
-            Anote as checagens realizadas nos equipamentos, quem conferiu e se está tudo certo ou com defeito.
+            Registre as checagens técnicas feitas pela equipe de TI nos computadores e notebooks para garantir que estão 100% operacionais.
           </p>
         </div>
 
@@ -133,19 +133,19 @@ export const Vistorias: React.FC = () => {
           className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-sm shrink-0"
         >
           <Plus className="w-4 h-4" />
-          Fazer Nova Checagem
+          Cadastrar Revisão
         </button>
       </div>
 
       {/* Filtros em botões simples */}
       <div className="bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row gap-2.5 sm:items-center justify-between">
         <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-          Filtrar checagens:
+          Filtrar revisões:
         </span>
 
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           {[
-            { id: 'todos', label: 'Todas as Checagens' },
+            { id: 'todos', label: 'Todas as Revisões' },
             { id: 'Aprovado', label: '✅ Apenas Aprovadas' },
             { id: 'Reprovado', label: '❌ Com Defeito' },
           ].map((st) => (
@@ -173,10 +173,10 @@ export const Vistorias: React.FC = () => {
         <div className="bg-white dark:bg-slate-900 p-12 text-center rounded-2xl border border-slate-200/80 dark:border-slate-800">
           <ClipboardCheck className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
           <h3 className="font-bold text-slate-700 dark:text-slate-300 text-sm">
-            Nenhuma checagem realizada ainda
+            Nenhuma revisão técnica registrada ainda
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Clique no botão verde acima para anotar a primeira revisão de um equipamento.
+            Clique no botão verde acima para registrar o primeiro teste técnico em um equipamento.
           </p>
         </div>
       ) : (
@@ -231,7 +231,7 @@ export const Vistorias: React.FC = () => {
                     <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                       <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                       <span className="truncate">
-                        Quem conferiu:{' '}
+                        Técnico de TI:{' '}
                         <strong className="text-slate-800 dark:text-slate-200">
                           {v.responsavelVistoria}
                         </strong>
@@ -241,7 +241,7 @@ export const Vistorias: React.FC = () => {
                     <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                       <Laptop className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                       <span className="truncate">
-                        Setor: <strong className="text-slate-800 dark:text-slate-200">{v.setor}</strong>
+                        Setor / Sala: <strong className="text-slate-800 dark:text-slate-200">{v.setor}</strong>
                       </span>
                     </div>
                   </div>
@@ -283,7 +283,7 @@ export const Vistorias: React.FC = () => {
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md p-5 sm:p-6 border border-slate-100 dark:border-slate-800 max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
               <h3 className="font-bold text-slate-900 dark:text-white text-base">
-                Registrar Checagem
+                Cadastrar Revisão Técnica
               </h3>
               <button
                 onClick={() => setShowModal(false)}
@@ -303,7 +303,7 @@ export const Vistorias: React.FC = () => {
               {/* Campo 1: Selecionar Equipamento */}
               <div>
                 <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
-                  Qual equipamento você conferiu? *
+                  Qual equipamento você testou? *
                 </label>
                 {maquinas.length === 0 ? (
                   <p className="text-xs text-rose-600 dark:text-rose-400">
@@ -317,18 +317,18 @@ export const Vistorias: React.FC = () => {
                   >
                     {maquinas.map((m) => (
                       <option key={m.id} value={m.id}>
-                        {m.nomeModelo} (Patrimônio: {m.numeroPatrimonio} — com {m.responsavel})
+                        {m.nomeModelo} (Tag: {m.numeroPatrimonio} — com {m.responsavel})
                       </option>
                     ))}
                   </select>
                 )}
               </div>
 
-              {/* Campo 2: Quem conferiu e Data */}
+              {/* Campo 2: Técnico e Data */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
-                    Quem conferiu? *
+                    Técnico de TI responsável *
                   </label>
                   <input
                     type="text"
@@ -342,7 +342,7 @@ export const Vistorias: React.FC = () => {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
-                    Data da checagem *
+                    Data da revisão técnica *
                   </label>
                   <input
                     type="date"
@@ -403,7 +403,7 @@ export const Vistorias: React.FC = () => {
                     className="w-full text-xs bg-white dark:bg-slate-900 border border-rose-300 dark:border-rose-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500 font-medium"
                   />
                   <p className="text-[11px] text-rose-700 dark:text-rose-300">
-                    💡 O sistema já vai marcar o equipamento como "Com Defeito" e anotar o conserto na aba de Problemas automaticamente.
+                    💡 O sistema já vai marcar o equipamento como "Com Defeito" e anotar o conserto na aba de Manutenções & Prazos automaticamente.
                   </p>
                 </div>
               )}
@@ -438,7 +438,7 @@ export const Vistorias: React.FC = () => {
                   disabled={saving || maquinas.length === 0}
                   className="w-full sm:w-auto px-5 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-xl transition-all shadow-sm disabled:opacity-50 text-center"
                 >
-                  {saving ? 'Salvando...' : 'Salvar Checagem'}
+                  {saving ? 'Salvando...' : 'Salvar Revisão'}
                 </button>
               </div>
             </form>

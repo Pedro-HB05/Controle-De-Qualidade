@@ -127,36 +127,16 @@ export const Maquinas: React.FC = () => {
     }
   };
 
-  // Botão rápido de 1 clique no card para alterar a situação
-  const handleToggleStatus = async (m: Maquina) => {
-    const novoStatus = m.status === 'Ativo' ? 'Em Manutenção' : 'Ativo';
-    try {
-      await api.atualizarMaquina(m.id, {
-        numeroPatrimonio: m.numeroPatrimonio,
-        nomeModelo: m.nomeModelo,
-        categoria: m.categoria || 'Geral',
-        responsavel: m.responsavel,
-        setor: m.setor,
-        status: novoStatus,
-        proximaRevisao: m.proximaRevisao,
-        observacoes: m.observacoes,
-      });
-      carregarMaquinas();
-    } catch (err: any) {
-      alert(err?.message || 'Erro ao alterar situação.');
-    }
-  };
-
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl mx-auto">
       {/* Header com botão de cadastro simples */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
           <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
-            Máquinas & Equipamentos
+            Inventário de TI & Equipamentos
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 sm:mt-1">
-            Cadastre computadores, celulares ou carros, veja com quem está e marque se está funcionando.
+            Cadastre computadores, notebooks e equipamentos do escritório e acompanhe com qual colaborador ou setor cada item está.
           </p>
         </div>
 
@@ -165,7 +145,7 @@ export const Maquinas: React.FC = () => {
           className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2.5 bg-sky-600 hover:bg-sky-500 active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-sm shrink-0"
         >
           <Plus className="w-4 h-4" />
-          Cadastrar Novo Equipamento
+          Cadastrar Equipamento
         </button>
       </div>
 
@@ -177,7 +157,7 @@ export const Maquinas: React.FC = () => {
             type="text"
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
-            placeholder="Buscar por nome, responsável ou código..."
+            placeholder="Buscar por modelo, colaborador alocado ou tag..."
             className="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:ring-2 focus:ring-sky-500 focus:outline-none transition-colors"
           />
         </div>
@@ -185,9 +165,9 @@ export const Maquinas: React.FC = () => {
         {/* Filtros em botões fáceis */}
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           {[
-            { id: 'todos', label: 'Todos' },
-            { id: 'Ativo', label: '✅ Funcionando' },
-            { id: 'Em Manutenção', label: '⚠️ Com Defeito' },
+            { id: 'todos', label: 'Todos os Itens' },
+            { id: 'Ativo', label: '✅ Em Uso / Funcionando' },
+            { id: 'Em Manutenção', label: '⚠️ Em Reparo Técnico' },
           ].map((st) => (
             <button
               key={st.id}
@@ -268,7 +248,7 @@ export const Maquinas: React.FC = () => {
                     <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                       <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                       <span className="truncate">
-                        Com quem fica:{' '}
+                        Colaborador:{' '}
                         <strong className="text-slate-800 dark:text-slate-100">{m.responsavel}</strong>
                       </span>
                     </div>
@@ -276,7 +256,7 @@ export const Maquinas: React.FC = () => {
                     <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                       <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                       <span className="truncate">
-                        Setor ou Sala:{' '}
+                        Setor / Sala:{' '}
                         <strong className="text-slate-800 dark:text-slate-100">{m.setor}</strong>
                       </span>
                     </div>
@@ -289,41 +269,24 @@ export const Maquinas: React.FC = () => {
                   )}
                 </div>
 
-                {/* Ações do Card: Botão de 1 clique para alterar situação + editar/excluir */}
+                {/* Ações do Card */}
                 <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
-                  <button
-                    onClick={() => handleToggleStatus(m)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                      isManutencao
-                        ? 'bg-emerald-50 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/80 border border-emerald-200 dark:border-emerald-800'
-                        : 'bg-amber-50 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/80 border border-amber-200 dark:border-amber-800'
-                    }`}
-                    title={isManutencao ? 'Marcar como consertado' : 'Avisar que quebrou'}
-                  >
-                    {isManutencao ? (
-                      <>
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        Marcar Funcionando
-                      </>
-                    ) : (
-                      <>
-                        <AlertTriangle className="w-3.5 h-3.5" />
-                        Avisar Defeito
-                      </>
-                    )}
-                  </button>
+                  <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                    {isManutencao ? 'Aguardando reparo' : 'Equipamento ativo'}
+                  </span>
 
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => handleOpenModal(m)}
-                      className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-sky-600 dark:hover:text-sky-400 hover:bg-sky-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                      title="Editar dados"
+                      className="px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-sky-600 dark:hover:text-sky-400 bg-slate-100 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-slate-700/80 rounded-xl transition-colors flex items-center gap-1.5"
+                      title="Editar dados do equipamento"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
+                      Editar
                     </button>
                     <button
                       onClick={() => handleExcluir(m.id)}
-                      className="p-1.5 text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                      className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-slate-800 rounded-xl transition-colors"
                       title="Excluir equipamento"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -362,29 +325,29 @@ export const Maquinas: React.FC = () => {
               {/* Campo 1: Nome do Equipamento */}
               <div>
                 <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
-                  Nome do Equipamento *
+                  Modelo do Equipamento *
                 </label>
                 <input
                   type="text"
                   required
                   value={nomeModelo}
                   onChange={(e) => setNomeModelo(e.target.value)}
-                  placeholder="Ex: Notebook Dell Inspiron, Gol Branco, Câmera Recepção"
+                  placeholder="Ex: Notebook Dell Latitude 3420, PC Desktop i7, Monitor 27&quot;"
                   className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 font-medium"
                 />
               </div>
 
-              {/* Campo 2: Com quem fica? */}
+              {/* Campo 2: Alocado para quem */}
               <div>
                 <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
-                  Com quem fica? (Pessoa ou Posto) *
+                  Para qual colaborador? *
                 </label>
                 <input
                   type="text"
                   required
                   value={responsavel}
                   onChange={(e) => setResponsavel(e.target.value)}
-                  placeholder="Ex: Dr. Carlos, Portaria 1, TI"
+                  placeholder="Ex: Carlos Menezes, Juliana, Recepção"
                   className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 font-medium"
                 />
               </div>
@@ -392,14 +355,14 @@ export const Maquinas: React.FC = () => {
               {/* Campo 3: Setor ou Sala */}
               <div>
                 <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
-                  Setor ou Sala *
+                  Setor ou Sala do Escritório *
                 </label>
                 <input
                   type="text"
                   required
                   value={setor}
                   onChange={(e) => setSetor(e.target.value)}
-                  placeholder="Ex: Advocacia, Segurança, Recepção"
+                  placeholder="Ex: Contencioso Cível, Trabalhista, Diretoria, Recepção"
                   className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 font-medium"
                 />
               </div>
@@ -407,7 +370,7 @@ export const Maquinas: React.FC = () => {
               {/* Campo 4: Situação Atual (2 botões grandes) */}
               <div>
                 <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">
-                  Está funcionando agora?
+                  Situação do Equipamento
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   <button
@@ -420,7 +383,7 @@ export const Maquinas: React.FC = () => {
                     }`}
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" />
-                    Sim, funcionando
+                    Operacional / Entregue
                   </button>
 
                   <button
@@ -433,7 +396,7 @@ export const Maquinas: React.FC = () => {
                     }`}
                   >
                     <AlertTriangle className="w-3.5 h-3.5" />
-                    Não, tem defeito
+                    Em Reparo / Defeito
                   </button>
                 </div>
               </div>

@@ -158,11 +158,10 @@ export const Relatorios: React.FC = () => {
           <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-2">
             <div>
               <h1 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white print:text-black uppercase tracking-tight">
-                ControlDesk — Relatório de Equipamentos e Revisões
+                ControlDesk — Relatório de Ativos de TI e Manutenções
               </h1>
               <p className="text-xs text-slate-500 dark:text-slate-400 print:text-slate-600 mt-0.5">
-                Emissão em: {new Date().toLocaleDateString('pt-BR')} às{' '}
-                {new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                Inventário e histórico técnico de Help Desk para a Diretoria do Escritório
               </p>
             </div>
             <div className="sm:text-right text-xs text-slate-600 dark:text-slate-400 print:text-slate-700">
@@ -176,7 +175,7 @@ export const Relatorios: React.FC = () => {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 bg-slate-50 dark:bg-slate-950/60 print:bg-slate-50 p-4 rounded-xl border border-slate-200/60 dark:border-slate-800 print:border-slate-300 text-center">
           <div>
             <span className="text-[11px] text-slate-500 dark:text-slate-400 print:text-slate-600 uppercase font-semibold">
-              Total de Itens
+              Total de Ativos
             </span>
             <div className="text-xl font-bold text-slate-900 dark:text-white print:text-black mt-1">
               {maquinasFiltradas.length}
@@ -184,7 +183,7 @@ export const Relatorios: React.FC = () => {
           </div>
           <div>
             <span className="text-[11px] text-slate-500 dark:text-slate-400 print:text-slate-600 uppercase font-semibold">
-              Checagens Feitas
+              Revisões Feitas
             </span>
             <div className="text-xl font-bold text-slate-900 dark:text-white print:text-black mt-1">
               {vistoriasFiltradas.length}
@@ -192,7 +191,7 @@ export const Relatorios: React.FC = () => {
           </div>
           <div>
             <span className="text-[11px] text-slate-500 dark:text-slate-400 print:text-slate-600 uppercase font-semibold">
-              Aprovados sem Defeito
+              100% Operacionais
             </span>
             <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400 print:text-emerald-700 mt-1">
               {vistoriasFiltradas.length > 0
@@ -206,7 +205,7 @@ export const Relatorios: React.FC = () => {
           </div>
           <div>
             <span className="text-[11px] text-slate-500 dark:text-slate-400 print:text-slate-600 uppercase font-semibold">
-              Problemas Consertados
+              Manutenções Concluídas
             </span>
             <div className="text-xl font-bold text-sky-600 dark:text-sky-400 print:text-sky-700 mt-1">
               {pendenciasFiltradas.filter((p) => p.status === 'Resolvida').length} /{' '}
@@ -219,12 +218,12 @@ export const Relatorios: React.FC = () => {
         <div className="space-y-3 pt-2">
           <h3 className="text-sm font-bold text-slate-900 dark:text-white print:text-black border-b border-slate-200 dark:border-slate-800 print:border-slate-300 pb-1.5 flex items-center gap-2">
             <ClipboardCheck className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-            1. Histórico de Checagens & Revisões
+            1. Histórico de Revisões Técnicas Preventivas
           </h3>
 
           {vistoriasFiltradas.length === 0 ? (
             <p className="text-xs text-slate-400 dark:text-slate-500 italic">
-              Nenhuma checagem realizada no período selecionado.
+              Nenhuma revisão técnica realizada no período selecionado.
             </p>
           ) : (
             <div className="overflow-x-auto">
@@ -233,9 +232,9 @@ export const Relatorios: React.FC = () => {
                   <tr>
                     <th className="p-2">Cód.</th>
                     <th className="p-2">Equipamento</th>
-                    <th className="p-2">Setor</th>
+                    <th className="p-2">Setor / Usuário</th>
                     <th className="p-2">Data</th>
-                    <th className="p-2">Quem Checou</th>
+                    <th className="p-2">Técnico de TI</th>
                     <th className="p-2">Resultado</th>
                     <th className="p-2">Anotações</th>
                   </tr>
@@ -284,12 +283,12 @@ export const Relatorios: React.FC = () => {
         <div className="space-y-3 pt-4">
           <h3 className="text-sm font-bold text-slate-900 dark:text-white print:text-black border-b border-slate-200 dark:border-slate-800 print:border-slate-300 pb-1.5 flex items-center gap-2">
             <ClockAlert className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-            2. Histórico de Problemas & Consertos
+            2. Histórico de Manutenções & Reparos de TI
           </h3>
 
           {pendenciasFiltradas.length === 0 ? (
             <p className="text-xs text-slate-400 dark:text-slate-500 italic">
-              Nenhum problema registrado no período selecionado.
+              Nenhuma manutenção de equipamento registrada no período selecionado.
             </p>
           ) : (
             <div className="overflow-x-auto">
@@ -297,12 +296,12 @@ export const Relatorios: React.FC = () => {
                 <thead className="bg-slate-100 dark:bg-slate-950 print:bg-slate-100 text-slate-700 dark:text-slate-300 print:text-slate-800 font-semibold border-b border-slate-200 dark:border-slate-800 print:border-slate-300">
                   <tr>
                     <th className="p-2">Cód.</th>
-                    <th className="p-2">Problema / Defeito</th>
+                    <th className="p-2">Defeito Apresentado</th>
                     <th className="p-2">Equipamento</th>
-                    <th className="p-2">Quem Consertou</th>
-                    <th className="p-2">Prazo</th>
+                    <th className="p-2">Técnico Encarregado</th>
+                    <th className="p-2">Prazo SLA</th>
                     <th className="p-2">Situação</th>
-                    <th className="p-2">Como foi resolvido</th>
+                    <th className="p-2">Solução Aplicada</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 dark:divide-slate-800 print:divide-slate-300">
@@ -333,11 +332,11 @@ export const Relatorios: React.FC = () => {
                               : 'text-amber-700 dark:text-amber-400'
                           }
                         >
-                          {p.status === 'Resolvida' ? 'Consertado' : p.status}
+                          {p.status === 'Resolvida' ? 'Reparado' : p.status}
                         </span>
                       </td>
                       <td className="p-2 text-slate-600 dark:text-slate-400 print:text-slate-700">
-                        {p.solucaoAplicada || 'Aguardando conserto'}
+                        {p.solucaoAplicada || 'Aguardando reparo'}
                       </td>
                     </tr>
                   ))}
@@ -350,10 +349,10 @@ export const Relatorios: React.FC = () => {
         {/* Rodapé de Assinatura para Prestação de Contas */}
         <div className="pt-8 sm:pt-12 border-t border-slate-200 dark:border-slate-800 print:border-slate-400 flex flex-col sm:flex-row gap-8 sm:gap-0 justify-between items-center text-center text-xs text-slate-600 dark:text-slate-400 print:text-black print:flex-row">
           <div className="w-full sm:w-64 border-t border-slate-400 pt-2">
-            <p className="font-bold">Responsável pelas Checagens</p>
+            <p className="font-bold">Responsável pelo Help Desk / TI</p>
           </div>
           <div className="w-full sm:w-64 border-t border-slate-400 pt-2">
-            <p className="font-bold">Diretoria / Gestão Geral</p>
+            <p className="font-bold">Diretoria do Escritório</p>
           </div>
         </div>
       </div>

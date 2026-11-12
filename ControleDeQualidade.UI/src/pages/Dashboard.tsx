@@ -40,11 +40,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ usuario, onNavigate }) => 
   }, []);
 
   const handleResolverRapido = async (id: number) => {
-    if (!window.confirm('Confirmar que este problema já foi consertado e resolvido?')) return;
+    if (!window.confirm('Confirmar que esta manutenção foi realizada com sucesso?')) return;
     setResolvendoId(id);
     try {
       await api.resolverPendencia(id, {
-        solucaoAplicada: 'Resolvido pelo painel inicial',
+        solucaoAplicada: 'Manutenção concluída pelo painel inicial',
         status: 'Resolvida',
       });
       await carregarDashboard();
@@ -73,36 +73,41 @@ export const Dashboard: React.FC<DashboardProps> = ({ usuario, onNavigate }) => 
       {/* Bloco de Boas-vindas e Ações Rápidas */}
       <div className="bg-white dark:bg-slate-900 p-5 sm:p-7 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-5">
         <div>
-          <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            Olá, {usuario?.nome ? usuario.nome.split(' ')[0] : 'Usuário'}! 👋
-          </h2>
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Olá, {usuario?.nome ? usuario.nome.split(' ')[0] : 'Técnico'}! 👋
+            </h2>
+            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-900">
+              Help Desk
+            </span>
+          </div>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">
-            O que você deseja fazer agora?
+            Painel da equipe de TI: controle de equipamentos, revisões e manutenções.
           </p>
         </div>
 
-        {/* 3 Botões Grandes e Fáceis */}
+        {/* 3 Botões Grandes do Help Desk */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 w-full md:w-auto">
           <button
             onClick={() => onNavigate('maquinas')}
             className="flex items-center justify-center gap-2 px-4 py-3 bg-sky-600 hover:bg-sky-500 active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-sm"
           >
             <Plus className="w-4 h-4" />
-            Nova Máquina
+            Novo Equipamento
           </button>
           <button
             onClick={() => onNavigate('vistorias')}
             className="flex items-center justify-center gap-2 px-4 py-3 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-sm"
           >
             <ClipboardCheck className="w-4 h-4" />
-            Fazer Checagem
+            Cadastrar Revisão
           </button>
           <button
             onClick={() => onNavigate('pendencias')}
             className="flex items-center justify-center gap-2 px-4 py-3 bg-amber-600 hover:bg-amber-500 active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-sm"
           >
             <ClockAlert className="w-4 h-4" />
-            Anotar Defeito
+            Registrar Manutenção
           </button>
         </div>
       </div>
@@ -125,7 +130,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ usuario, onNavigate }) => 
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Máquinas Cadastradas
+              Equipamentos no Inventário
             </span>
             <div className="p-2.5 bg-sky-50 dark:bg-sky-950/80 text-sky-600 dark:text-sky-400 rounded-xl">
               <Laptop className="w-5 h-5" />
@@ -135,15 +140,15 @@ export const Dashboard: React.FC<DashboardProps> = ({ usuario, onNavigate }) => 
             <span className="text-3xl font-extrabold text-slate-900 dark:text-white">
               {kpis?.totalMaquinas ?? 0}
             </span>
-            <span className="text-xs text-slate-400">no total</span>
+            <span className="text-xs text-slate-400">ativos cadastrados</span>
           </div>
           <div className="mt-3 flex items-center gap-3 text-xs border-t border-slate-100 dark:border-slate-800 pt-3">
             <span className="text-emerald-600 dark:text-emerald-400 font-bold">
-              ● {kpis?.maquinasAtivas ?? 0} funcionando
+              ● {kpis?.maquinasAtivas ?? 0} com colaboradores/equipe
             </span>
             {(kpis?.maquinasManutencao ?? 0) > 0 && (
               <span className="text-amber-600 dark:text-amber-400 font-bold">
-                ● {kpis?.maquinasManutencao} em conserto
+                ● {kpis?.maquinasManutencao} em reparo
               </span>
             )}
           </div>
@@ -156,7 +161,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ usuario, onNavigate }) => 
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Checagens Feitas
+              Revisões Preventivas
             </span>
             <div className="p-2.5 bg-emerald-50 dark:bg-emerald-950/80 text-emerald-600 dark:text-emerald-400 rounded-xl">
               <ClipboardCheck className="w-5 h-5" />
@@ -166,10 +171,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ usuario, onNavigate }) => 
             <span className="text-3xl font-extrabold text-slate-900 dark:text-white">
               {kpis?.totalVistorias ?? 0}
             </span>
-            <span className="text-xs text-slate-400">revisões</span>
+            <span className="text-xs text-slate-400">testes feitos</span>
           </div>
           <div className="mt-3 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800 pt-3">
-            <span>Aprovados sem defeito:</span>
+            <span>Aprovados no teste:</span>
             <span className="font-bold text-emerald-600 dark:text-emerald-400">
               {kpis?.taxaAprovacao.toFixed(0) ?? '100'}%
             </span>
@@ -183,7 +188,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ usuario, onNavigate }) => 
         >
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Problemas para Consertar
+              Manutenções em Andamento
             </span>
             <div className="p-2.5 bg-amber-50 dark:bg-amber-950/80 text-amber-600 dark:text-amber-400 rounded-xl">
               <ClockAlert className="w-5 h-5" />
@@ -217,10 +222,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ usuario, onNavigate }) => 
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-base font-bold text-slate-900 dark:text-white">
-              O que precisa de conserto no momento?
+              Manutenções que precisam de atenção no momento
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Itens que quebraram ou foram reprovados nas checagens
+              Equipamentos em conserto e prazos da equipe de TI
             </p>
           </div>
           <button
@@ -252,7 +257,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ usuario, onNavigate }) => 
                       Equipamento: <strong className="text-slate-700 dark:text-slate-300">{item.patrimonio}</strong>
                     </span>
                     <span>
-                      Quem vai arrumar: <strong className="text-slate-700 dark:text-slate-300">{item.responsavel}</strong>
+                      Técnico de TI: <strong className="text-slate-700 dark:text-slate-300">{item.responsavel}</strong>
                     </span>
                     <span>
                       Prazo: <strong className={item.estaAtrasada ? 'text-rose-600 dark:text-rose-400' : 'text-slate-700 dark:text-slate-300'}>{new Date(item.prazoLimite).toLocaleDateString('pt-BR')}</strong>
@@ -268,7 +273,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ usuario, onNavigate }) => 
                     title="Clique para marcar como resolvido diretamente"
                   >
                     <Check className="w-3.5 h-3.5" />
-                    {resolvendoId === item.id ? 'Salvando...' : 'Marcar como Consertado'}
+                    {resolvendoId === item.id ? 'Salvando...' : 'Concluir Manutenção'}
                   </button>
                 </div>
               </div>

@@ -19,14 +19,30 @@ const API_BASE = envUrl
 
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE}${endpoint}`;
+  const token = localStorage.getItem('token');
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(options?.headers as Record<string, string>),
+  };
+
   const response = await fetch(url, {
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      ...options?.headers,
-    },
     ...options,
+    headers,
   });
+
+  if (response.status === 401) {
+    // Sessão expirada ou não autorizada: limpa credenciais com segurança
+    localStorage.removeItem('token');
+    localStorage.removeItem('usuario_logado');
+    window.dispatchEvent(new Event('auth-logout'));
+  }
+
+  if (response.status === 429) {
+    throw new Error('Muitas tentativas consecutivas. Por segurança, aguarde 1 minuto antes de tentar novamente.');
+  }
 
   if (!response.ok) {
     let errorMsg = `Erro ${response.status}: ${response.statusText}`;
