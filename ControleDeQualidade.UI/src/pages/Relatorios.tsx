@@ -161,7 +161,7 @@ export const Relatorios: React.FC = () => {
                 ControlDesk — Relatório de Ativos de TI e Manutenções
               </h1>
               <p className="text-xs text-slate-500 dark:text-slate-400 print:text-slate-600 mt-0.5">
-                Inventário e histórico técnico de Help Desk para a Diretoria do Escritório
+                Inventário e histórico técnico de Help Desk para a Diretoria / Gestão
               </p>
             </div>
             <div className="sm:text-right text-xs text-slate-600 dark:text-slate-400 print:text-slate-700">
@@ -352,7 +352,7 @@ export const Relatorios: React.FC = () => {
             <p className="font-bold">Responsável pelo Help Desk / TI</p>
           </div>
           <div className="w-full sm:w-64 border-t border-slate-400 pt-2">
-            <p className="font-bold">Diretoria do Escritório</p>
+            <p className="font-bold">Diretoria / Gestão da Empresa</p>
           </div>
         </div>
       </div>

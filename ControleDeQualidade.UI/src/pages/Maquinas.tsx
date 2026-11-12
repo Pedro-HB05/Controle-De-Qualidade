@@ -32,7 +32,7 @@ export const Maquinas: React.FC = () => {
   // Form simplificado
   const [nomeModelo, setNomeModelo] = useState<string>('');
   const [responsavel, setResponsavel] = useState<string>('');
-  const [setor, setSetor] = useState<string>('Advocacia');
+  const [setor, setSetor] = useState<string>('Operações');
   const [patrimonio, setPatrimonio] = useState<string>('');
   const [status, setStatus] = useState<string>('Ativo');
   const [observacoes, setObservacoes] = useState<string>('');
@@ -71,7 +71,7 @@ export const Maquinas: React.FC = () => {
       setEditingId(null);
       setNomeModelo('');
       setResponsavel('');
-      setSetor('Advocacia');
+      setSetor('Operações');
       setPatrimonio('');
       setStatus('Ativo');
       setObservacoes('');
@@ -136,7 +136,7 @@ export const Maquinas: React.FC = () => {
             Inventário de TI & Equipamentos
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 sm:mt-1">
-            Cadastre computadores, notebooks e equipamentos do escritório e acompanhe com qual colaborador ou setor cada item está.
+            Cadastre computadores, notebooks e equipamentos da empresa e acompanhe com qual colaborador ou setor cada item está.
           </p>
         </div>
 
@@ -256,7 +256,7 @@ export const Maquinas: React.FC = () => {
                     <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                       <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                       <span className="truncate">
-                        Setor / Sala:{' '}
+                        Setor:{' '}
                         <strong className="text-slate-800 dark:text-slate-100">{m.setor}</strong>
                       </span>
                     </div>
@@ -347,22 +347,22 @@ export const Maquinas: React.FC = () => {
                   required
                   value={responsavel}
                   onChange={(e) => setResponsavel(e.target.value)}
-                  placeholder="Ex: Carlos Menezes, Juliana, Recepção"
+                  placeholder="Ex: Carlos Silva, Juliana Souza, Suporte, Recepção"
                   className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 font-medium"
                 />
               </div>
 
-              {/* Campo 3: Setor ou Sala */}
+              {/* Campo 3: Setor */}
               <div>
                 <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
-                  Setor ou Sala do Escritório *
+                  Setor / Departamento da Empresa *
                 </label>
                 <input
                   type="text"
                   required
                   value={setor}
                   onChange={(e) => setSetor(e.target.value)}
-                  placeholder="Ex: Contencioso Cível, Trabalhista, Diretoria, Recepção"
+                  placeholder="Ex: Financeiro, TI, Comercial, Operações, RH, Diretoria"
                   className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 font-medium"
                 />
               </div>
@@ -435,7 +435,7 @@ export const Maquinas: React.FC = () => {
                         rows={2}
                         value={observacoes}
                         onChange={(e) => setObservacoes(e.target.value)}
-                        placeholder="Ex: Fica na sala 2, comprado novo..."
+                        placeholder="Ex: Comprado novo com garantia, uso corporativo..."
                         className="w-full text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-900 dark:text-white"
                       />
                     </div>
