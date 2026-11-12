@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ControleDeQualidade.API.Data;
@@ -5,6 +6,7 @@ using ControleDeQualidade.API.Models.Entities;
 
 namespace ControleDeQualidade.API.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/vistorias")]
 public class VistoriasController : ControllerBase
