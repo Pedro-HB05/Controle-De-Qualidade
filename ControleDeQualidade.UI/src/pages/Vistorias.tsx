@@ -241,7 +241,7 @@ export const Vistorias: React.FC = () => {
                     <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                       <Laptop className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                       <span className="truncate">
-                        Setor / Sala: <strong className="text-slate-800 dark:text-slate-200">{v.setor}</strong>
+                        Setor: <strong className="text-slate-800 dark:text-slate-200">{v.setor}</strong>
                       </span>
                     </div>
                   </div>
@@ -251,10 +251,18 @@ export const Vistorias: React.FC = () => {
                       className={`mt-3 p-2.5 rounded-xl text-xs ${
                         !isAprovado
                           ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200/60 dark:border-rose-900/40'
+                          : v.observacoes.includes('[Reparo Concluído')
+                          ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-900/40'
                           : 'bg-slate-50 dark:bg-slate-950/60 text-slate-600 dark:text-slate-400 border border-slate-100 dark:border-slate-800/60'
                       }`}
                     >
                       {!isAprovado && <strong className="block mb-0.5 font-bold">Defeito anotado:</strong>}
+                      {isAprovado && v.observacoes.includes('[Reparo Concluído') && (
+                        <div className="flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-bold mb-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>Reparado & Aprovado com sucesso</span>
+                        </div>
+                      )}
                       {v.observacoes}
                     </div>
                   )}
