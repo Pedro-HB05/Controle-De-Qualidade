@@ -19,28 +19,54 @@ if (!string.IsNullOrWhiteSpace(port))
 
 // Configuração do Banco de Dados (PostgreSQL no Neon / Render com suporte a Snake Case)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-                    ?? Environment.GetEnvironmentVariable("DATABASE_URL");
+                    ?? Environment.GetEnvironmentVariable("DATABASE_URL")
+                    ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
 
 if (!string.IsNullOrWhiteSpace(connectionString) && connectionString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase))
 {
     connectionString = "postgresql://" + connectionString.Substring("postgres://".Length);
 }
 
-builder.Services.AddDbContext<AppDbContext>(options =>
+if (string.IsNullOrWhiteSpace(connectionString))
 {
-    if (!string.IsNullOrWhiteSpace(connectionString))
+    if (builder.Environment.IsDevelopment())
     {
-        options.UseNpgsql(connectionString)
-               .UseSnakeCaseNamingConvention();
+        builder.Services.AddDbContext<AppDbContext>(options =>
+            options.UseInMemoryDatabase("ControleQualidadeDb"));
     }
     else
     {
-        options.UseInMemoryDatabase("ControleQualidadeDb");
+        throw new InvalidOperationException(
+            "ERRO CRÍTICO DE CONFIGURAÇÃO: A string de conexão com o banco de dados (variável DATABASE_URL ou ConnectionStrings__DefaultConnection) não foi configurada nas variáveis de ambiente do Render.");
     }
-});
+}
+else
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseNpgsql(connectionString)
+               .UseSnakeCaseNamingConvention());
+}
 
 // Autenticação Segura JWT (JSON Web Tokens)
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "ControlDesk_Secret_Key_Law_Firm_Enterprise_2026_Secure_Token_Key_9876543210!";
+var jwtKey = builder.Configuration["Jwt:Key"];
+if (string.IsNullOrWhiteSpace(jwtKey))
+{
+    jwtKey = Environment.GetEnvironmentVariable("JWT_KEY")
+          ?? Environment.GetEnvironmentVariable("Jwt__Key");
+}
+
+if (string.IsNullOrWhiteSpace(jwtKey))
+{
+    if (builder.Environment.IsDevelopment())
+    {
+        jwtKey = "ControlDesk_Dev_Secret_Key_Enterprise_2026_Local_Only_9876543210!";
+    }
+    else
+    {
+        throw new InvalidOperationException(
+            "ERRO CRÍTICO DE SEGURANÇA: A chave secreta JWT (variável JWT_KEY) não foi configurada nas variáveis de ambiente do Render. Configure uma chave com no mínimo 32 caracteres.");
+    }
+}
 var keyBytes = Encoding.UTF8.GetBytes(jwtKey);
 
 builder.Services.AddAuthentication(options =>
@@ -103,7 +129,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "ControlDesk API - Advocacia & Segurança",
+        Title = "ControlDesk API - Help Desk & Gestão de TI",
         Version = "v1",
         Description = "API REST corporativa do ControlDesk com autenticação JWT e criptografia de senhas BCrypt."
     });

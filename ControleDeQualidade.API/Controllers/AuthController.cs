@@ -160,7 +160,18 @@ public class AuthController : ControllerBase
 
     private string GerarJwt(Usuario usuario)
     {
-        var jwtKey = _configuration["Jwt:Key"] ?? "ControlDesk_Secret_Key_Law_Firm_Enterprise_2026_Secure_Token_Key_9876543210!";
+        var jwtKey = _configuration["Jwt:Key"];
+        if (string.IsNullOrWhiteSpace(jwtKey))
+        {
+            jwtKey = Environment.GetEnvironmentVariable("JWT_KEY")
+                  ?? Environment.GetEnvironmentVariable("Jwt__Key");
+        }
+
+        if (string.IsNullOrWhiteSpace(jwtKey))
+        {
+            throw new InvalidOperationException("Chave secreta JWT não configurada no servidor.");
+        }
+
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
