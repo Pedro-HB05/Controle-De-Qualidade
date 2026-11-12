@@ -4,10 +4,13 @@ import { Vistoria, Maquina, VistoriaInput } from '../types';
 import {
   Plus,
   ClipboardCheck,
-  CheckCircle,
+  CheckCircle2,
   XCircle,
   X,
   Trash2,
+  Calendar,
+  User,
+  Laptop,
 } from 'lucide-react';
 
 export const Vistorias: React.FC = () => {
@@ -21,16 +24,13 @@ export const Vistorias: React.FC = () => {
   const [saving, setSaving] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Form
+  // Form simplificado
   const [maquinaId, setMaquinaId] = useState<number>(0);
   const [responsavelVistoria, setResponsavelVistoria] = useState<string>('');
   const [dataVistoria, setDataVistoria] = useState<string>(new Date().toISOString().split('T')[0]);
-  const [status, setStatus] = useState<string>('Aprovado');
-  const [observacoes, setObservacoes] = useState<string>('');
-  const [criarPendencia, setCriarPendencia] = useState<boolean>(true);
-  const [tituloPendencia, setTituloPendencia] = useState<string>('');
-  const [responsavelTratativa, setResponsavelTratativa] = useState<string>('');
-  const [prazoPendencia, setPrazoPendencia] = useState<string>('');
+  const [status, setStatus] = useState<string>('Aprovado'); // 'Aprovado' ou 'Reprovado'
+  const [defeitoDescricao, setDefeitoDescricao] = useState<string>('');
+  const [observacoesExtras, setObservacoesExtras] = useState<string>('');
 
   const carregarDados = async () => {
     setLoading(true);
@@ -59,11 +59,8 @@ export const Vistorias: React.FC = () => {
     setErrorMsg(null);
     setDataVistoria(new Date().toISOString().split('T')[0]);
     setStatus('Aprovado');
-    setObservacoes('');
-    setCriarPendencia(true);
-    setTituloPendencia('');
-    setResponsavelTratativa('');
-    setPrazoPendencia('');
+    setDefeitoDescricao('');
+    setObservacoesExtras('');
     if (maquinas.length > 0) {
       setMaquinaId(maquinas[0].id);
     }
@@ -73,7 +70,12 @@ export const Vistorias: React.FC = () => {
   const handleSalvarVistoria = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!maquinaId) {
-      setErrorMsg('Selecione uma máquina para vistoriar.');
+      setErrorMsg('Por favor, selecione qual equipamento você conferiu.');
+      return;
+    }
+
+    if (status === 'Reprovado' && !defeitoDescricao.trim()) {
+      setErrorMsg('Por favor, informe qual defeito você encontrou no equipamento.');
       return;
     }
 
@@ -82,14 +84,14 @@ export const Vistorias: React.FC = () => {
 
     const payload: VistoriaInput = {
       maquinaId,
-      responsavelVistoria,
+      responsavelVistoria: responsavelVistoria.trim() || 'Inspetor',
       dataVistoria: new Date(dataVistoria).toISOString(),
       status,
-      observacoes,
-      criarPendenciaSeReprovado: status !== 'Aprovado' && criarPendencia,
-      tituloPendencia,
-      responsavelTratativa,
-      prazoPendencia: prazoPendencia ? new Date(prazoPendencia).toISOString() : undefined,
+      observacoes: status === 'Reprovado'
+        ? defeitoDescricao.trim() + (observacoesExtras ? ` (${observacoesExtras.trim()})` : '')
+        : observacoesExtras.trim() || 'Equipamento conferido e funcionando normalmente.',
+      criarPendenciaSeReprovado: status === 'Reprovado',
+      tituloPendencia: defeitoDescricao.trim(),
     };
 
     try {
@@ -97,14 +99,14 @@ export const Vistorias: React.FC = () => {
       setShowModal(false);
       carregarDados();
     } catch (err: any) {
-      setErrorMsg(err?.message || 'Falha ao registrar vistoria.');
+      setErrorMsg(err?.message || 'Falha ao registrar checagem.');
     } finally {
       setSaving(false);
     }
   };
 
   const handleExcluir = async (id: number) => {
-    if (!window.confirm('Tem certeza que deseja excluir o registro desta vistoria?')) return;
+    if (!window.confirm('Tem certeza que deseja apagar o registro desta checagem?')) return;
     try {
       await api.excluirVistoria(id);
       carregarDados();
@@ -115,45 +117,44 @@ export const Vistorias: React.FC = () => {
 
   return (
     <div className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 max-w-7xl mx-auto">
-      {/* Header */}
+      {/* Header com botão de checagem */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
           <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
             Checagens & Revisões
           </h2>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 sm:mt-1">
-            Anote as conferências feitas nos equipamentos para registrar quem testou, a data e se está tudo funcionando.
+            Anote as checagens realizadas nos equipamentos, quem conferiu e se está tudo certo ou com defeito.
           </p>
         </div>
 
         <button
           onClick={handleOpenModal}
-          className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2.5 bg-sky-600 hover:bg-sky-500 active:scale-95 text-white rounded-xl text-xs font-semibold transition-all shadow-sm shrink-0"
+          className="w-full sm:w-auto justify-center flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-sm shrink-0"
         >
           <Plus className="w-4 h-4" />
           Fazer Nova Checagem
         </button>
       </div>
 
-      {/* Filtros */}
+      {/* Filtros em botões simples */}
       <div className="bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row gap-2.5 sm:items-center justify-between">
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
-          <span>Filtrar por Situação:</span>
-        </div>
+        <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+          Filtrar checagens:
+        </span>
 
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           {[
-            { id: 'todos', label: 'Todas' },
-            { id: 'Aprovado', label: 'Aprovadas' },
-            { id: 'Reprovado', label: 'Reprovadas (Com Defeito)' },
-            { id: 'Aprovado com Restrição', label: 'Com Restrição' },
+            { id: 'todos', label: 'Todas as Checagens' },
+            { id: 'Aprovado', label: '✅ Apenas Aprovadas' },
+            { id: 'Reprovado', label: '❌ Com Defeito' },
           ].map((st) => (
             <button
               key={st.id}
               onClick={() => setFiltroStatus(st.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
                 filtroStatus === st.id
-                  ? 'bg-slate-900 dark:bg-sky-600 text-white'
+                  ? 'bg-slate-900 dark:bg-emerald-600 text-white shadow-sm'
                   : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
@@ -163,7 +164,7 @@ export const Vistorias: React.FC = () => {
         </div>
       </div>
 
-      {/* Lista de Vistorias */}
+      {/* Lista de Checagens */}
       {loading ? (
         <div className="py-12 text-center text-slate-400 dark:text-slate-500 text-xs">
           Carregando checagens...
@@ -175,257 +176,255 @@ export const Vistorias: React.FC = () => {
             Nenhuma checagem realizada ainda
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Clique no botão azul acima para registrar a primeira conferência de um equipamento.
+            Clique no botão verde acima para anotar a primeira revisão de um equipamento.
           </p>
         </div>
       ) : (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs min-w-[650px]">
-              <thead className="bg-slate-50 dark:bg-slate-950 text-slate-600 dark:text-slate-400 font-semibold border-b border-slate-200/80 dark:border-slate-800">
-                <tr>
-                  <th className="py-3.5 px-4">Código</th>
-                  <th className="py-3.5 px-4">Equipamento / Patrimônio</th>
-                  <th className="py-3.5 px-4">Setor</th>
-                  <th className="py-3.5 px-4">Quem Checou</th>
-                  <th className="py-3.5 px-4">Data da Checagem</th>
-                  <th className="py-3.5 px-4">Resultado</th>
-                  <th className="py-3.5 px-4">Observações</th>
-                  <th className="py-3.5 px-4 text-right">Ações</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {vistorias.map((v) => {
-                  const isAprovado = v.status === 'Aprovado';
-                  return (
-                    <tr
-                      key={v.id}
-                      className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors"
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          {vistorias.map((v) => {
+            const isAprovado = v.status === 'Aprovado';
+            return (
+              <div
+                key={v.id}
+                className={`bg-white dark:bg-slate-900 p-5 rounded-2xl border shadow-sm transition-all flex flex-col justify-between space-y-4 ${
+                  !isAprovado
+                    ? 'border-rose-200 dark:border-rose-900/60 ring-1 ring-rose-100 dark:ring-rose-900/30'
+                    : 'border-slate-200/80 dark:border-slate-800 hover:shadow-md'
+                }`}
+              >
+                <div>
+                  {/* Topo do Card: Data e Resultado */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[11px] font-mono px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold rounded-lg">
+                      {new Date(v.dataVistoria).toLocaleDateString('pt-BR')}
+                    </span>
+
+                    <span
+                      className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1 ${
+                        isAprovado
+                          ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'
+                          : 'bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300'
+                      }`}
                     >
-                      <td className="py-3 px-4 font-mono font-bold text-slate-700 dark:text-slate-300">
-                        {v.codigoVistoria}
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="font-bold text-slate-900 dark:text-white">
-                          {v.nomeModelo}
-                        </div>
-                        <div className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
-                          {v.numeroPatrimonio}
-                        </div>
-                      </td>
-                      <td className="py-3 px-4 text-slate-600 dark:text-slate-300">{v.setor}</td>
-                      <td className="py-3 px-4 font-medium text-slate-800 dark:text-slate-200">
-                        {v.responsavelVistoria}
-                      </td>
-                      <td className="py-3 px-4 text-slate-600 dark:text-slate-400">
-                        {new Date(v.dataVistoria).toLocaleDateString('pt-BR')}
-                      </td>
-                      <td className="py-3 px-4">
-                        <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-bold text-[11px] ${
-                            isAprovado
-                              ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300'
-                              : v.status === 'Reprovado'
-                              ? 'bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300'
-                              : 'bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300'
-                          }`}
-                        >
-                          {isAprovado ? (
-                            <CheckCircle className="w-3.5 h-3.5" />
-                          ) : (
-                            <XCircle className="w-3.5 h-3.5" />
-                          )}
-                          {v.status}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-slate-600 dark:text-slate-300 max-w-xs truncate">
-                        {v.observacoes || 'Sem observações adicionais.'}
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <button
-                          onClick={() => handleExcluir(v.id)}
-                          className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
-                          title="Excluir vistoria"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                      {isAprovado ? (
+                        <>
+                          <CheckCircle2 className="w-3 h-3" /> Aprovado
+                        </>
+                      ) : (
+                        <>
+                          <XCircle className="w-3 h-3" /> Com Defeito
+                        </>
+                      )}
+                    </span>
+                  </div>
+
+                  {/* Nome do Equipamento */}
+                  <h3 className="font-bold text-slate-900 dark:text-white text-base mt-3 leading-snug">
+                    {v.nomeModelo}
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">
+                    Patrimônio: {v.numeroPatrimonio}
+                  </p>
+
+                  {/* Detalhes */}
+                  <div className="mt-3.5 space-y-1.5 border-t border-slate-100 dark:border-slate-800 pt-3 text-xs">
+                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                      <User className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span className="truncate">
+                        Quem conferiu:{' '}
+                        <strong className="text-slate-800 dark:text-slate-200">
+                          {v.responsavelVistoria}
+                        </strong>
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
+                      <Laptop className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span className="truncate">
+                        Setor: <strong className="text-slate-800 dark:text-slate-200">{v.setor}</strong>
+                      </span>
+                    </div>
+                  </div>
+
+                  {v.observacoes && (
+                    <div
+                      className={`mt-3 p-2.5 rounded-xl text-xs ${
+                        !isAprovado
+                          ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200/60 dark:border-rose-900/40'
+                          : 'bg-slate-50 dark:bg-slate-950/60 text-slate-600 dark:text-slate-400 border border-slate-100 dark:border-slate-800/60'
+                      }`}
+                    >
+                      {!isAprovado && <strong className="block mb-0.5 font-bold">Defeito anotado:</strong>}
+                      {v.observacoes}
+                    </div>
+                  )}
+                </div>
+
+                {/* Rodapé do Card */}
+                <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs text-slate-400">
+                  <span className="font-mono text-[10px]">{v.codigoVistoria}</span>
+                  <button
+                    onClick={() => handleExcluir(v.id)}
+                    className="p-1.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                    title="Apagar este registro"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
 
-      {/* Modal Registrar Vistoria */}
+      {/* Modal Fazer Checagem Simples */}
       {showModal && (
         <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg p-5 sm:p-6 border border-slate-100 dark:border-slate-800 max-h-[92vh] overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md p-5 sm:p-6 border border-slate-100 dark:border-slate-800 max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-              <h3 className="font-bold text-slate-900 dark:text-white text-sm">
-                Registrar Checagem do Equipamento
+              <h3 className="font-bold text-slate-900 dark:text-white text-base">
+                Registrar Checagem
               </h3>
               <button
                 onClick={() => setShowModal(false)}
                 className="p-1 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
 
             {errorMsg && (
-              <div className="mt-3 p-2.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-700 dark:text-rose-300 text-xs rounded-xl">
+              <div className="mt-3 p-3 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-700 dark:text-rose-300 text-xs rounded-xl">
                 {errorMsg}
               </div>
             )}
 
-            <form onSubmit={handleSalvarVistoria} className="mt-4 space-y-3">
+            <form onSubmit={handleSalvarVistoria} className="mt-4 space-y-3.5">
+              {/* Campo 1: Selecionar Equipamento */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
                   Qual equipamento você conferiu? *
                 </label>
-                <select
-                  value={maquinaId}
-                  onChange={(e) => setMaquinaId(Number(e.target.value))}
-                  className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-sky-500"
-                >
-                  {maquinas.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.numeroPatrimonio} - {m.nomeModelo} ({m.responsavel} - {m.setor})
-                    </option>
-                  ))}
-                </select>
+                {maquinas.length === 0 ? (
+                  <p className="text-xs text-rose-600 dark:text-rose-400">
+                    Nenhum equipamento cadastrado ainda. Cadastre um equipamento primeiro.
+                  </p>
+                ) : (
+                  <select
+                    value={maquinaId}
+                    onChange={(e) => setMaquinaId(Number(e.target.value))}
+                    className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-slate-900 dark:text-white font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  >
+                    {maquinas.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.nomeModelo} (Patrimônio: {m.numeroPatrimonio} — com {m.responsavel})
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
 
+              {/* Campo 2: Quem conferiu e Data */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Quem fez a conferência? *
+                  <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
+                    Quem conferiu? *
                   </label>
                   <input
                     type="text"
                     required
                     value={responsavelVistoria}
                     onChange={(e) => setResponsavelVistoria(e.target.value)}
-                    placeholder="Seu nome ou quem testou"
-                    className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                    placeholder="Seu nome"
+                    className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                    Data da Conferência *
+                  <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1">
+                    Data da checagem *
                   </label>
                   <input
                     type="date"
                     required
                     value={dataVistoria}
                     onChange={(e) => setDataVistoria(e.target.value)}
-                    className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                    className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2.5 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   />
                 </div>
               </div>
 
+              {/* Campo 3: Resultado (2 Botões Grandes) */}
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  O equipamento está funcionando? *
+                <label className="block text-xs font-bold text-slate-800 dark:text-slate-200 mb-1.5">
+                  Como está o equipamento? *
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                  {[
-                    { id: 'Aprovado', label: '✅ Aprovado (Tudo Certo)' },
-                    { id: 'Reprovado', label: '❌ Reprovado (Com Defeito)' },
-                    { id: 'Aprovado com Restrição', label: '⚠️ Com Restrição (Aviso)' },
-                  ].map((item) => (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => setStatus(item.id)}
-                      className={`py-2 px-3 rounded-xl text-xs font-bold border text-center transition-all ${
-                        status === item.id
-                          ? 'bg-slate-900 dark:bg-sky-600 text-white border-slate-900 dark:border-sky-600 shadow-sm'
-                          : 'bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'
-                      }`}
-                    >
-                      {item.label}
-                    </button>
-                  ))}
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setStatus('Aprovado')}
+                    className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 ${
+                      status === 'Aprovado'
+                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
+                        : 'bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <CheckCircle2 className="w-4 h-4" />
+                    Tudo Certo (Aprovado)
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setStatus('Reprovado')}
+                    className={`py-2.5 px-3 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1.5 ${
+                      status === 'Reprovado'
+                        ? 'bg-rose-600 text-white border-rose-600 shadow-sm'
+                        : 'bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <XCircle className="w-4 h-4" />
+                    Tem Defeito (Reprovado)
+                  </button>
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  Anotações sobre a checagem (Opcional)
-                </label>
-                <textarea
-                  rows={2}
-                  value={observacoes}
-                  onChange={(e) => setObservacoes(e.target.value)}
-                  placeholder="Descreva o que foi testado ou detalhes do estado do equipamento..."
-                  className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
-                />
-              </div>
-
-              {/* Se foi reprovado, abre seção de pendência automática */}
-              {status !== 'Aprovado' && (
-                <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 rounded-xl space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-amber-900 dark:text-amber-300">
-                      🚨 Deseja já registrar esse problema para conserto?
-                    </span>
-                    <input
-                      type="checkbox"
-                      checked={criarPendencia}
-                      onChange={(e) => setCriarPendencia(e.target.checked)}
-                      className="w-4 h-4 text-sky-600 rounded"
-                    />
-                  </div>
-
-                  {criarPendencia && (
-                    <div className="space-y-2 pt-1">
-                      <div>
-                        <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300">
-                          Qual foi o problema ou defeito?
-                        </label>
-                        <input
-                          type="text"
-                          value={tituloPendencia}
-                          onChange={(e) => setTituloPendencia(e.target.value)}
-                          placeholder="Ex: Câmera com conector frouxo, rádio não liga"
-                          className="w-full text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-900 dark:text-white"
-                        />
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <div>
-                          <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300">
-                            Quem vai consertar?
-                          </label>
-                          <input
-                            type="text"
-                            value={responsavelTratativa}
-                            onChange={(e) => setResponsavelTratativa(e.target.value)}
-                            placeholder="Ex: Técnico de TI, Oficina"
-                            className="w-full text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-900 dark:text-white"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-300">
-                            Data limite para conserto
-                          </label>
-                          <input
-                            type="date"
-                            value={prazoPendencia}
-                            onChange={(e) => setPrazoPendencia(e.target.value)}
-                            className="w-full text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-900 dark:text-white"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
+              {/* Se foi Reprovado: Campo direto e obrigatório para dizer o que quebrou */}
+              {status === 'Reprovado' && (
+                <div className="p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 rounded-xl space-y-2">
+                  <label className="block text-xs font-bold text-rose-900 dark:text-rose-200">
+                    O que está quebrado ou com defeito? *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={defeitoDescricao}
+                    onChange={(e) => setDefeitoDescricao(e.target.value)}
+                    placeholder="Ex: Teclado travado, não liga, cabo arrebentado..."
+                    className="w-full text-xs bg-white dark:bg-slate-900 border border-rose-300 dark:border-rose-800 rounded-lg px-3 py-2 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500 font-medium"
+                  />
+                  <p className="text-[11px] text-rose-700 dark:text-rose-300">
+                    💡 O sistema já vai marcar o equipamento como "Com Defeito" e anotar o conserto na aba de Problemas automaticamente.
+                  </p>
                 </div>
               )}
 
+              {/* Anotação Opcional (Se Aprovado) */}
+              {status === 'Aprovado' && (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                    Anotação extra (Opcional)
+                  </label>
+                  <input
+                    type="text"
+                    value={observacoesExtras}
+                    onChange={(e) => setObservacoesExtras(e.target.value)}
+                    placeholder="Ex: Limpeza feita, bateria com 100%..."
+                    className="w-full text-xs bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  />
+                </div>
+              )}
+
+              {/* Botões do Rodapé */}
               <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col-reverse sm:flex-row justify-end gap-2">
                 <button
                   type="button"
@@ -436,8 +435,8 @@ export const Vistorias: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  disabled={saving}
-                  className="w-full sm:w-auto px-5 py-2 text-xs font-semibold bg-sky-600 hover:bg-sky-500 active:scale-95 text-white rounded-xl transition-all shadow-sm disabled:opacity-50 text-center"
+                  disabled={saving || maquinas.length === 0}
+                  className="w-full sm:w-auto px-5 py-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white rounded-xl transition-all shadow-sm disabled:opacity-50 text-center"
                 >
                   {saving ? 'Salvando...' : 'Salvar Checagem'}
                 </button>
