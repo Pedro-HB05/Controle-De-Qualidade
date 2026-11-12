@@ -5,8 +5,21 @@ using ControleDeQualidade.API.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuração do Banco de Dados (PostgreSQL no Neon com suporte a Snake Case)
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// Suporte para porta dinâmica do Render e ambientes em nuvem (PORT)
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrWhiteSpace(port))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
+
+// Configuração do Banco de Dados (PostgreSQL no Neon / Render com suporte a Snake Case)
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+                    ?? Environment.GetEnvironmentVariable("DATABASE_URL");
+
+if (!string.IsNullOrWhiteSpace(connectionString) && connectionString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase))
+{
+    connectionString = "postgresql://" + connectionString.Substring("postgres://".Length);
+}
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
